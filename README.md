@@ -70,9 +70,9 @@ pak::pak("mengxu98/scop")
 
 ### Prepare python environment
 
-To run functions such as `RunPAGA` or `RunSCVELO`, [scop](https://github.com/mengxu98/scop) requires [conda](https://docs.conda.io/en/latest/miniconda.html) to create a separate python environment. The default environment name is `"scop_env"`. You can specify the environment name for scop by setting `options(scop_envname = "new_name")`.
+To run functions such as `RunPAGA()`, `RunSCVELO()`, [scop](https://github.com/mengxu98/scop) requires [conda](https://docs.conda.io/en/latest/miniconda.html) to create a separate python environment. The default environment name is `"scop_env"`. You can specify the environment name for scop by setting `options(scop_envname = "new_name")`.
 
-Now, you can run `PrepareEnv()` to create the python environment for scop. If the conda binary is not found, it will automatically download and install miniconda.
+Now, you can run `PrepareEnv()` to create the python environment for [scop](https://github.com/mengxu98/scop). If the conda binary is not found, it will automatically download and install miniconda.
 
 ``` r
 scop::PrepareEnv()
@@ -643,7 +643,7 @@ ht <- DynamicHeatmap(
     c("gold", "steelblue"), c("forestgreen")
   ),
   pseudotime_label = 25,
-  seudotime_label_color = "red",
+  pseudotime_label_color = "red",
   height = 5,
   width = 2
 )

@@ -7,6 +7,7 @@
 #'
 #' @md
 #' @inheritParams RunPAGA
+#' @inheritParams thisutils::log_message
 #' @param mode Velocity estimation models to use.
 #' Can be a vector containing `"deterministic"`, `"stochastic"`, and/or `"dynamical"`.
 #' @param fitting_by Method used to fit gene velocities for dynamical modeling, e.g., "stochastic".
@@ -59,22 +60,22 @@
 #'   linear_reduction = "PCA",
 #'   nonlinear_reduction = "UMAP"
 #' )
-#' head(pancreas_sub[[]])
-#' names(pancreas_sub@assays)
 #'
 #' FeatureDimPlot(
 #'   pancreas_sub,
-#'   c("stochastic_length", "stochastic_confidence")
+#'   c(
+#'     "stochastic_length",
+#'     "stochastic_confidence",
+#'     "stochastic_pseudotime"
+#'   )
 #' )
-#' FeatureDimPlot(
-#'   pancreas_sub,
-#'   "stochastic_pseudotime"
-#' )
+#'
 #' VelocityPlot(
 #'   pancreas_sub,
 #'   reduction = "UMAP",
 #'   plot_type = "stream"
 #' )
+#'
 #' CellDimPlot(
 #'   pancreas_sub,
 #'   group.by = "SubCellType",
@@ -149,10 +150,11 @@ RunSCVELO <- function(
     dpi = 300,
     dirpath = "./",
     fileprefix = "",
-    return_seurat = !is.null(srt)) {
-  check_python("scvelo")
+    return_seurat = !is.null(srt),
+    verbose = TRUE) {
+  check_python("scvelo", verbose = verbose)
   if (isTRUE(magic_impute)) {
-    check_python("magic-impute")
+    check_python("magic-impute", verbose = verbose)
   }
 
   if (all(is.null(srt), is.null(adata))) {
@@ -248,18 +250,14 @@ RunSCVELO <- function(
     palcolor = palcolor
   )
 
-  log_message("Running {.pkg scVelo} analysis...")
-  scop_analysis <- reticulate::import_from_path(
-    "scop_analysis",
+  functions <- reticulate::import_from_path(
+    "functions",
     path = system.file("python", package = "scop", mustWork = TRUE),
     convert = TRUE
   )
 
-  adata <- do.call(scop_analysis$SCVELO, args)
-  log_message(
-    "{.pkg scVelo} analysis completed",
-    message_type = "success"
-  )
+  adata <- do.call(functions$SCVELO, args)
+
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)
     if (is.null(srt)) {

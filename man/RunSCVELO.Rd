@@ -53,7 +53,8 @@ RunSCVELO(
   dpi = 300,
   dirpath = "./",
   fileprefix = "",
-  return_seurat = !is.null(srt)
+  return_seurat = !is.null(srt),
+  verbose = TRUE
 )
 }
 \arguments{
@@ -159,6 +160,9 @@ Each cell in the grid can have, at most, one traversing streamline.}
 
 \item{return_seurat}{Whether to return a Seurat object instead of an anndata object.
 Default is \code{TRUE}.}
+
+\item{verbose}{Whether to print the message.
+Default is \code{TRUE}.}
 }
 \description{
 scVelo is a scalable toolkit for RNA velocity analysis in single cells.
@@ -177,22 +181,22 @@ pancreas_sub <- RunSCVELO(
   linear_reduction = "PCA",
   nonlinear_reduction = "UMAP"
 )
-head(pancreas_sub[[]])
-names(pancreas_sub@assays)
 
 FeatureDimPlot(
   pancreas_sub,
-  c("stochastic_length", "stochastic_confidence")
+  c(
+    "stochastic_length",
+    "stochastic_confidence",
+    "stochastic_pseudotime"
+  )
 )
-FeatureDimPlot(
-  pancreas_sub,
-  "stochastic_pseudotime"
-)
+
 VelocityPlot(
   pancreas_sub,
   reduction = "UMAP",
   plot_type = "stream"
 )
+
 CellDimPlot(
   pancreas_sub,
   group.by = "SubCellType",
