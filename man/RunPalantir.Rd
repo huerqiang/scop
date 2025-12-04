@@ -34,7 +34,7 @@ RunPalantir(
   point_size = 20,
   palette = "Paired",
   palcolor = NULL,
-  show_plot = TRUE,
+  show_plot = FALSE,
   save = FALSE,
   dpi = 300,
   dirpath = "./",
@@ -44,7 +44,8 @@ RunPalantir(
 )
 }
 \arguments{
-\item{srt}{A Seurat object.}
+\item{srt}{A Seurat object. Default is \code{NULL}.
+If provided, \code{adata} will be ignored.}
 
 \item{assay_x}{Assay to convert in the anndata object.}
 
@@ -54,7 +55,7 @@ RunPalantir(
 
 \item{layer_y}{Layer names for the \code{assay_y} in the Seurat object.}
 
-\item{adata}{An anndata object.}
+\item{adata}{An anndata object. Default is \code{NULL}.}
 
 \item{group_by}{Variable to use for grouping cells in the Seurat object.}
 
@@ -104,7 +105,8 @@ Default is \code{30}.}
 
 \item{palcolor}{A vector of colors to use as the palette.}
 
-\item{show_plot}{Whether to show the plot.}
+\item{show_plot}{Whether to show the plot.
+Default is \code{FALSE}.}
 
 \item{save}{Whether to save the plots.}
 
@@ -125,7 +127,6 @@ Run Palantir analysis
 }
 \examples{
 \dontrun{
-PrepareEnv()
 data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunPalantir(
@@ -137,11 +138,12 @@ pancreas_sub <- RunPalantir(
   use_early_cell_as_start = TRUE,
   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon")
 )
-head(pancreas_sub[[]])
+
 FeatureDimPlot(
   pancreas_sub,
   c("palantir_pseudotime", "palantir_diff_potential")
 )
+
 FeatureDimPlot(
   pancreas_sub,
   paste0(

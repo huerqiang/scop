@@ -6,11 +6,11 @@
 \usage{
 RunSCVELO(
   srt = NULL,
+  adata = NULL,
   assay_x = "RNA",
   layer_x = "counts",
   assay_y = c("spliced", "unspliced"),
   layer_y = "counts",
-  adata = NULL,
   group_by = NULL,
   linear_reduction = NULL,
   nonlinear_reduction = NULL,
@@ -58,7 +58,10 @@ RunSCVELO(
 )
 }
 \arguments{
-\item{srt}{A Seurat object.}
+\item{srt}{A Seurat object. Default is \code{NULL}.
+If provided, \code{adata} will be ignored.}
+
+\item{adata}{An anndata object. Default is \code{NULL}.}
 
 \item{assay_x}{Assay to convert in the anndata object.}
 
@@ -67,8 +70,6 @@ RunSCVELO(
 \item{assay_y}{Assay to convert in the anndata object.}
 
 \item{layer_y}{Layer names for the \code{assay_y} in the Seurat object.}
-
-\item{adata}{An anndata object.}
 
 \item{group_by}{Variable to use for grouping cells in the Seurat object.}
 
@@ -148,7 +149,8 @@ Each cell in the grid can have, at most, one traversing streamline.}
 
 \item{palcolor}{A vector of colors to use as the palette.}
 
-\item{show_plot}{Whether to show the plot.}
+\item{show_plot}{Whether to show the plot.
+Default is \code{FALSE}.}
 
 \item{save}{Whether to save the plots.}
 
@@ -171,7 +173,6 @@ version compatibility, and modular design.
 }
 \examples{
 \dontrun{
-PrepareEnv()
 data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunSCVELO(

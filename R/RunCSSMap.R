@@ -1,11 +1,14 @@
-#' Single-cell reference mapping with CSS method
+#' @title Single-cell reference mapping with CSS method
+#'
 #' @inheritParams RunKNNMap
-#' @param ref_css A character string specifying the name of the CSS reduction in the reference object to use for calculating the distance metric.
+#' @param ref_css The name of the CSS reduction in the reference object to use for calculating the distance metric.
 #'
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' data(panc8_sub)
+#' panc8_sub <- standard_scop(panc8_sub)
 #' srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
 #' srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
 #' srt_ref <- integration_scop(
@@ -28,6 +31,7 @@
 #'   query_group = "celltype",
 #'   ref_group = "celltype"
 #' )
+#' }
 RunCSSMap <- function(
     srt_query,
     srt_ref,

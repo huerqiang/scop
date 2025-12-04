@@ -24,7 +24,6 @@
 #'
 #' @examples
 #' \dontrun{
-#' PrepareEnv()
 #' data(pancreas_sub)
 #' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunPalantir(
@@ -36,11 +35,12 @@
 #'   use_early_cell_as_start = TRUE,
 #'   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon")
 #' )
-#' head(pancreas_sub[[]])
+#'
 #' FeatureDimPlot(
 #'   pancreas_sub,
 #'   c("palantir_pseudotime", "palantir_diff_potential")
 #' )
+#'
 #' FeatureDimPlot(
 #'   pancreas_sub,
 #'   paste0(
@@ -79,14 +79,15 @@ RunPalantir <- function(
     point_size = 20,
     palette = "Paired",
     palcolor = NULL,
-    show_plot = TRUE,
+    show_plot = FALSE,
     save = FALSE,
     dpi = 300,
     dirpath = "./",
     fileprefix = "",
     return_seurat = !is.null(srt),
     verbose = TRUE) {
-  check_python("palantir")
+  PrepareEnv()
+  check_python("palantir", verbose = verbose)
   if (all(is.null(srt), is.null(adata))) {
     log_message(
       "{.arg srt} or {.arg adata} must be provided.",

@@ -66,7 +66,7 @@ DynamicHeatmap(
   db_version = "latest",
   db_combine = FALSE,
   convert_species = FALSE,
-  Ensembl_version = 103,
+  Ensembl_version = NULL,
   mirror = NULL,
   db = "GO_BP",
   TERM2GENE = NULL,
@@ -474,6 +474,7 @@ Default is an empty list.}
 Heatmap plot for dynamic features along lineages
 }
 \examples{
+options(log_message.verbose = FALSE)
 data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 
@@ -497,7 +498,7 @@ ht1 <- DynamicHeatmap(
 )
 ht1$plot
 
-panel_fix(ht1$plot, raster = TRUE, dpi = 50)
+thisplot::panel_fix(ht1$plot, raster = TRUE, dpi = 50)
 
 ht2 <- DynamicHeatmap(
   pancreas_sub,
@@ -513,7 +514,7 @@ ht2 <- DynamicHeatmap(
 )
 ht2$plot
 
-panel_fix(
+thisplot::panel_fix(
   ht2$plot,
   height = 5,
   width = 5,

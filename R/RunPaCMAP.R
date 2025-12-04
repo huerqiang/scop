@@ -47,7 +47,9 @@
 #' @export
 #'
 #' @examples
-#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' \dontrun{
+#' data(pancreas_sub)
+#' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunPaCMAP(
 #'   object = pancreas_sub,
 #'   features = SeuratObject::VariableFeatures(pancreas_sub)
@@ -57,6 +59,7 @@
 #'   group.by = "CellType",
 #'   reduction = "pacmap"
 #' )
+#' }
 RunPaCMAP <- function(object, ...) {
   UseMethod(generic = "RunPaCMAP", object = object)
 }
@@ -174,7 +177,8 @@ RunPaCMAP.default <- function(
     set.seed(seed = seed.use)
   }
 
-  check_python("pacmap")
+  PrepareEnv()
+  check_python("pacmap", verbose = verbose)
   pacmap <- reticulate::import("pacmap")
 
   operator <- pacmap$PaCMAP(

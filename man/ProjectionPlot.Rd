@@ -20,9 +20,9 @@ ProjectionPlot(
 )
 }
 \arguments{
-\item{srt_query}{An object of class Seurat storing the query group cells.}
+\item{srt_query}{A Seurat object storing the query cells.}
 
-\item{srt_ref}{An object of class Seurat storing the reference group cells.}
+\item{srt_ref}{A Seurat object storing the reference cells.}
 
 \item{query_group}{The grouping variable for the query group cells.}
 
@@ -32,29 +32,35 @@ ProjectionPlot(
 
 \item{ref_reduction}{The name of the reduction in the reference group cells.}
 
-\item{query_param}{A list of parameters for customizing the query group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).}
+\item{query_param}{A list of parameters for customizing the query group plot.
+Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).}
 
-\item{ref_param}{A list of parameters for customizing the reference group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).}
+\item{ref_param}{A list of parameters for customizing the reference group plot.
+Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).}
 
-\item{xlim}{The x-axis limits for the plot. If not provided, the limits will be calculated based on the data.}
+\item{xlim}{The x-axis limits for the plot.
+If not provided, the limits will be calculated based on the data.}
 
-\item{ylim}{The y-axis limits for the plot. If not provided, the limits will be calculated based on the data.}
+\item{ylim}{The y-axis limits for the plot.
+If not provided, the limits will be calculated based on the data.}
 
 \item{pt.size}{The size of the points in the plot.}
 
 \item{stroke.highlight}{The size of the stroke highlight for cells.}
 }
 \description{
-This function generates a projection plot, which can be used to compare two groups of cells in a dimensionality reduction space.
+This function generates a projection plot,
+which can be used to compare two groups of cells in a dimensionality reduction space.
 }
 \examples{
 data(panc8_sub)
+panc8_sub <- standard_scop(panc8_sub)
 srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
 srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
 srt_ref <- integration_scop(
   srt_ref,
   batch = "tech",
-  integration_method = "Seurat"
+  integration_method = "Uncorrected"
 )
 CellDimPlot(
   srt_ref,
@@ -65,7 +71,7 @@ CellDimPlot(
 srt_query <- RunKNNMap(
   srt_query = srt_query,
   srt_ref = srt_ref,
-  ref_umap = "SeuratUMAP2D"
+  ref_umap = "UncorrectedUMAP2D"
 )
 ProjectionPlot(
   srt_query = srt_query,

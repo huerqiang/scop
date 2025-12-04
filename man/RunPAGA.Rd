@@ -6,11 +6,11 @@
 \usage{
 RunPAGA(
   srt = NULL,
+  adata = NULL,
   assay_x = "RNA",
   layer_x = "counts",
   assay_y = c("spliced", "unspliced"),
   layer_y = "counts",
-  adata = NULL,
   group_by = NULL,
   linear_reduction = NULL,
   nonlinear_reduction = NULL,
@@ -31,7 +31,7 @@ RunPAGA(
   min_group_size = 0.01,
   palette = "Paired",
   palcolor = NULL,
-  show_plot = TRUE,
+  show_plot = FALSE,
   save = FALSE,
   dpi = 300,
   dirpath = "./",
@@ -41,7 +41,10 @@ RunPAGA(
 )
 }
 \arguments{
-\item{srt}{A Seurat object.}
+\item{srt}{A Seurat object. Default is \code{NULL}.
+If provided, \code{adata} will be ignored.}
+
+\item{adata}{An anndata object. Default is \code{NULL}.}
 
 \item{assay_x}{Assay to convert in the anndata object.}
 
@@ -50,8 +53,6 @@ RunPAGA(
 \item{assay_y}{Assay to convert in the anndata object.}
 
 \item{layer_y}{Layer names for the \code{assay_y} in the Seurat object.}
-
-\item{adata}{An anndata object.}
 
 \item{group_by}{Variable to use for grouping cells in the Seurat object.}
 
@@ -100,7 +101,8 @@ Edges for weights below this threshold will not be drawn.}
 
 \item{palcolor}{A vector of colors to use as the palette.}
 
-\item{show_plot}{Whether to show the plot.}
+\item{show_plot}{Whether to show the plot.
+Default is \code{FALSE}.}
 
 \item{save}{Whether to save the plots.}
 
@@ -122,7 +124,6 @@ This function runs the PAGA analysis on a Seurat object.
 }
 \examples{
 \dontrun{
-PrepareEnv()
 data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunPAGA(

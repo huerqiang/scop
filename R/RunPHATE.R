@@ -57,20 +57,19 @@
 #' @export
 #'
 #' @examples
-#' pancreas_sub <- Seurat::FindVariableFeatures(
-#'   pancreas_sub,
-#'   verbose = FALSE
-#' )
-#' features <- SeuratObject::VariableFeatures(pancreas_sub)
+#' \dontrun{
+#' data(pancreas_sub)
+#' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunPHATE(
-#'   pancreas_sub,
-#'   features = features
+#'   object = pancreas_sub,
+#'   features = SeuratObject::VariableFeatures(pancreas_sub)
 #' )
 #' CellDimPlot(
 #'   pancreas_sub,
 #'   group.by = "CellType",
 #'   reduction = "phate"
 #' )
+#' }
 RunPHATE <- function(object, ...) {
   UseMethod(generic = "RunPHATE", object = object)
 }
@@ -197,7 +196,8 @@ RunPHATE.default <- function(
     seed.use = 11,
     ...) {
   set.seed(seed = seed.use)
-  check_python("phate")
+  PrepareEnv()
+  check_python("phate", verbose = verbose)
   phate <- reticulate::import("phate")
 
   if (is.numeric(knn_max) && length(knn_max) > 0) {
