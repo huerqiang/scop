@@ -11,7 +11,7 @@ RunPalantir(
   assay_y = c("spliced", "unspliced"),
   layer_y = "counts",
   adata = NULL,
-  group_by = NULL,
+  group.by = NULL,
   linear_reduction = NULL,
   nonlinear_reduction = NULL,
   basis = NULL,
@@ -30,15 +30,17 @@ RunPalantir(
   adjust_early_cell = FALSE,
   adjust_terminal_cells = FALSE,
   max_iterations = 25,
-  n_jobs = 1,
+  cores = 1,
   point_size = 20,
-  palette = "Paired",
+  palette = "Chinese",
   palcolor = NULL,
+  legend.position = "on data",
   show_plot = FALSE,
-  save = FALSE,
-  dpi = 300,
+  save_plot = FALSE,
+  plot_format = c("pdf", "png", "svg"),
+  plot_dpi = 300,
+  plot_prefix = "palantir",
   dirpath = "./",
-  fileprefix = "",
   return_seurat = !is.null(srt),
   verbose = TRUE
 )
@@ -47,21 +49,30 @@ RunPalantir(
 \item{srt}{A Seurat object. Default is \code{NULL}.
 If provided, \code{adata} will be ignored.}
 
-\item{assay_x}{Assay to convert in the anndata object.}
+\item{assay_x}{Assay to convert as the main data matrix in the anndata object.
+Default is \code{"RNA"}.}
 
-\item{layer_x}{Layer name for \code{assay_x} in the Seurat object.}
+\item{layer_x}{Layer name for assay_x in the Seurat object.
+Default is \code{"counts"}.}
 
-\item{assay_y}{Assay to convert in the anndata object.}
+\item{assay_y}{Assays to convert as layers in the anndata object.
+Default is \code{c("spliced", "unspliced")}.}
 
-\item{layer_y}{Layer names for the \code{assay_y} in the Seurat object.}
+\item{layer_y}{Layer names for the assay_y in the Seurat object.
+Default is \code{"counts"}.}
 
 \item{adata}{An anndata object. Default is \code{NULL}.}
 
-\item{group_by}{Variable to use for grouping cells in the Seurat object.}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by.}
 
-\item{linear_reduction}{Linear reduction method to use, e.g., \code{"PCA"}.}
+\item{linear_reduction}{The linear dimensionality reduction method to use.
+Options are \code{"pca"}, \code{"svd"}, \code{"ica"}, \code{"nmf"}, \code{"mds"}, or \code{"glmpca"}.
+Default is \code{"pca"}.}
 
-\item{nonlinear_reduction}{Non-linear reduction method to use, e.g., \code{"UMAP"}.}
+\item{nonlinear_reduction}{The nonlinear dimensionality reduction method to use.
+Options are \code{"umap"}, \code{"umap-naive"}, \code{"tsne"}, \code{"dm"},
+\code{"phate"}, \code{"pacmap"}, \code{"trimap"}, \code{"largevis"}, or \code{"fr"}.
+Default is \code{"umap"}.}
 
 \item{basis}{The basis to use for reduction, e.g., \code{"UMAP"}.}
 
@@ -97,24 +108,32 @@ Default is \code{30}.}
 
 \item{max_iterations}{Maximum number of iterations for pseudotime convergence.}
 
-\item{n_jobs}{The number of parallel jobs to run.}
+\item{cores}{The number of cores to use for \code{cellrank}.}
 
 \item{point_size}{The point size for plotting.}
 
-\item{palette}{The palette to use for coloring cells.}
+\item{palette}{Color palette name.
+Available palettes can be found in \link[thisplot:show_palettes]{thisplot::show_palettes}.
+Default is \code{"Chinese"}.}
 
-\item{palcolor}{A vector of colors to use as the palette.}
+\item{palcolor}{Custom colors used to create a color palette.
+Default is \code{NULL}.}
+
+\item{legend.position}{Position of legend in plots.
+Can be \code{"on data"}, \code{"right margin"}, \code{"bottom right"}, etc. Default is \code{"on data"}.}
 
 \item{show_plot}{Whether to show the plot.
 Default is \code{FALSE}.}
 
-\item{save}{Whether to save the plots.}
+\item{save_plot}{Whether to save plots to files. Default is \code{FALSE}.}
 
-\item{dpi}{The DPI (dots per inch) for saving the plot.}
+\item{plot_format}{Format for saved plots: \code{"png"} (default), \code{"pdf"}, or \code{"svg"}.}
 
-\item{dirpath}{The directory to save the plots.}
+\item{plot_dpi}{Resolution (DPI) for saved plots. Default is \code{300}.}
 
-\item{fileprefix}{The file prefix to use for the plots.}
+\item{plot_prefix}{Prefix for saved plot filenames. Default is "cellrank".}
+
+\item{dirpath}{The directory to save the plots. Default is \code{"./cellrank"}.}
 
 \item{return_seurat}{Whether to return a Seurat object instead of an anndata object.
 Default is \code{TRUE}.}
@@ -131,11 +150,10 @@ data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunPalantir(
   pancreas_sub,
-  group_by = "SubCellType",
+  group.by = "SubCellType",
   linear_reduction = "PCA",
   nonlinear_reduction = "UMAP",
   early_group = "Ductal",
-  use_early_cell_as_start = TRUE,
   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon")
 )
 
@@ -152,7 +170,4 @@ FeatureDimPlot(
   )
 )
 }
-}
-\seealso{
-\link{srt_to_adata}
 }

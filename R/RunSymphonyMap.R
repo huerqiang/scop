@@ -47,7 +47,7 @@ RunSymphonyMap <- function(
     k = 30,
     distance_metric = "cosine",
     vote_fun = "mean") {
-  check_r("immunogenomics/symphony")
+  check_r("immunogenomics/symphony", verbose = FALSE)
   query_assay <- query_assay %||% SeuratObject::DefaultAssay(srt_query)
   ref_assay <- ref_assay %||% SeuratObject::DefaultAssay(srt_ref)
   if (!is.null(ref_group)) {
@@ -151,7 +151,7 @@ RunSymphonyMap <- function(
       assay = query_assay
     )
   )
-  log_message("Detected srt_query data type: {.val {status_query}}")
+  log_message("Detected {.arg srt_query} data type: {.val {status_query}}")
   status_ref <- CheckDataType(
     object = GetAssayData5(
       srt_ref,
@@ -159,7 +159,7 @@ RunSymphonyMap <- function(
       assay = ref_assay
     )
   )
-  log_message("Detected srt_ref data type: {.val {status_ref}}")
+  log_message("Detected {.arg srt_ref} data type: {.val {status_ref}}")
   if (
     status_ref != status_query ||
       any(status_query == "unknown", status_ref == "unknown")
@@ -251,7 +251,7 @@ mapQuery <- function(
   idx_shared_genes <- which(ref_obj$vargenes$symbol %in% rownames(exp_query))
   shared_genes <- ref_obj$vargenes$symbol[idx_shared_genes]
   log_message(
-    "Found {.val {length(shared_genes)}} reference variable genes in query dataset",
+    "Found {.val {length(shared_genes)}} reference variable genes in query object",
     verbose = verbose
   )
   exp_query_scaled <- symphony::scaleDataWithStats(
@@ -351,7 +351,6 @@ buildReferenceFromSeurat <- function(
     )
   }
   res <- list()
-  ## TODO: check that these objects are all correctly initialized
   res$Z_corr <- Matrix::t(
     SeuratObject::Embeddings(obj, harmony)
   )
@@ -428,7 +427,7 @@ buildReferenceFromSeurat <- function(
 
   if (is.null(obj[[umap]]@misc$model)) {
     log_message(
-      "{.pkg uwot} model not initialiazed in Seurat object\n",
+      "{.pkg uwot} model not initialiazed in {.cls Seurat}\n",
       "Run {.fn Seurat::RunUMAP} with {.arg umap.method = 'uwot'}, {.arg return.model = TRUE} first",
       message_type = "error"
     )

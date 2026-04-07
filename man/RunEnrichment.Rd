@@ -6,7 +6,7 @@
 \usage{
 RunEnrichment(
   srt = NULL,
-  group_by = NULL,
+  group.by = NULL,
   test.use = "wilcox",
   DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
   geneID = NULL,
@@ -40,8 +40,7 @@ RunEnrichment(
 If specified, the genes and groups will be extracted from the Seurat object automatically.
 If not specified, the \code{geneID} and \code{geneID_groups} arguments must be provided.}
 
-\item{group_by}{A character vector specifying the grouping variable in the Seurat object.
-This argument is only used if \code{srt} is specified.}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by.}
 
 \item{test.use}{A character vector specifying the test to be used in differential expression analysis.
 This argument is only used if \code{srt} is specified.}
@@ -61,25 +60,27 @@ This argument is used to convert the gene IDs to a different type if \code{IDtyp
 \item{result_IDtype}{A character vector specifying the desired type of gene ID to be used in the output.
 This argument is used to convert the gene IDs from \code{IDtype} to \code{result_IDtype}.}
 
-\item{species}{A character vector specifying the species for which the analysis is performed.}
+\item{species}{A character vector specifying the species for which the gene annotation databases should be prepared.
+Can be \code{"Homo_sapiens"} or \code{"Mus_musculus"}.}
 
-\item{db}{A character vector specifying the name of the database to be used for enrichment analysis.}
+\item{db}{A character vector specifying the annotation sources to be included in the gene annotation databases.
+Can be one or more of \verb{"GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "CORUM", "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellTalk", "CellChat", "Chromosome", "GeneType", "Enzyme", "TF"}.}
 
 \item{db_update}{Whether the gene annotation databases should be forcefully updated.
 If set to FALSE, the function will attempt to load the cached databases instead.
-Default is FALSE.}
+Default is \code{FALSE}.}
 
-\item{db_version}{A character vector specifying the version of the database to be used.
-This argument is ignored if \code{db_update} is \code{TRUE}.
-Default is "latest".}
+\item{db_version}{A character vector specifying the version of the gene annotation databases to be retrieved.
+Default is \code{"latest"}.}
 
 \item{db_combine}{Whether to combine multiple databases into one.
-If TRUE, all database specified by \code{db} will be combined as one named "Combined".}
+If \code{TRUE}, all database specified by \code{db} will be combined as one named "Combined".}
 
 \item{convert_species}{Whether to use a species-converted database when the annotation is missing for the specified species.
-The default value is TRUE.}
+Default is \code{TRUE}.}
 
-\item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
+\item{Ensembl_version}{An integer specifying the Ensembl version.
+Default is \code{NULL}. If \code{NULL}, the latest version will be used.}
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are \code{"www"}, \code{"uswest"}, \code{"useast"}, \code{"asia"}.}
 
@@ -135,11 +136,11 @@ data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunDEtest(
   pancreas_sub,
-  group_by = "CellType"
+  group.by = "CellType"
 )
 pancreas_sub <- RunEnrichment(
   pancreas_sub,
-  group_by = "CellType",
+  group.by = "CellType",
   DE_threshold = "p_val_adj < 0.05",
   db = "GO_BP",
   species = "Mus_musculus"
@@ -147,14 +148,14 @@ pancreas_sub <- RunEnrichment(
 EnrichmentPlot(
   pancreas_sub,
   db = "GO_BP",
-  group_by = "CellType",
+  group.by = "CellType",
   plot_type = "comparison"
 )
 
 \dontrun{
 pancreas_sub <- RunEnrichment(
   pancreas_sub,
-  group_by = "CellType",
+  group.by = "CellType",
   DE_threshold = "p_val_adj < 0.05",
   db = c("MSigDB", "MSigDB_MH"),
   species = "Mus_musculus"
@@ -162,20 +163,20 @@ pancreas_sub <- RunEnrichment(
 EnrichmentPlot(
   pancreas_sub,
   db = "MSigDB",
-  group_by = "CellType",
+  group.by = "CellType",
   plot_type = "comparison"
 )
 EnrichmentPlot(
   pancreas_sub,
   db = "MSigDB_MH",
-  group_by = "CellType",
+  group.by = "CellType",
   plot_type = "comparison"
 )
 
 # Remove redundant GO terms
 pancreas_sub <- RunEnrichment(
   pancreas_sub,
-  group_by = "CellType",
+  group.by = "CellType",
   db = "GO_BP",
   GO_simplify = TRUE,
   species = "Mus_musculus"
@@ -183,7 +184,7 @@ pancreas_sub <- RunEnrichment(
 EnrichmentPlot(
   pancreas_sub,
   db = "GO_BP_sim",
-  group_by = "CellType",
+  group.by = "CellType",
   plot_type = "comparison"
 )
 
@@ -207,7 +208,7 @@ EnrichmentPlot(
 # Use a combined database
 pancreas_sub <- RunEnrichment(
   pancreas_sub,
-  group_by = "CellType",
+  group.by = "CellType",
   db = c(
     "KEGG", "WikiPathway", "Reactome", "PFAM", "MP"
   ),
@@ -217,7 +218,7 @@ pancreas_sub <- RunEnrichment(
 EnrichmentPlot(
   pancreas_sub,
   db = "Combined",
-  group_by = "CellType",
+  group.by = "CellType",
   plot_type = "comparison"
 )
 }

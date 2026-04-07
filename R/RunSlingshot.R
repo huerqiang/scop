@@ -1,32 +1,26 @@
-#' RunSlingshot
-#'
-#' Runs the Slingshot algorithm on a Seurat object.
+#' @title RunSlingshot
 #'
 #' @md
-#' @param srt A Seurat object.
-#' @param group.by The variable to group the cells by.
-#' @param reduction The reduction technique to use for dimensionality reduction.
-#' Default is NULL, which uses the default reduction for the Seurat object.
+#' @inheritParams CellDimPlot
 #' @param dims The dimensions to use for the Slingshot algorithm.
-#' Default is NULL, which uses first two dimensions.
+#' Default is `NULL`, which uses first two dimensions.
 #' @param start The starting group for the Slingshot algorithm.
-#' Default is NULL.
+#' Default is `NULL`.
 #' @param end The ending group for the Slingshot algorithm.
-#' Default is NULL.
+#' Default is `NULL`.
 #' @param prefix The prefix to add to the column names of the resulting pseudotime variable.
-#' Default is NULL.
+#' Default is `NULL`.
 #' @param reverse Logical value indicating whether to reverse the pseudotime variable.
-#' Default is FALSE.
+#' Default is `FALSE`.
 #' @param align_start Logical value indicating whether to align the starting pseudotime values at the maximum pseudotime.
-#' Default is FALSE.
+#' Default is `FALSE`.
 #' @param show_plot Logical value indicating whether to show the dimensionality plot.
-#' Default is TRUE.
+#' Default is `TRUE`.
 #' @param lineage_palette The color palette to use for the lineages in the plot.
-#' Default is "Dark2".
-#' @param seed The random seed to use for reproducibility. Default is 11.
+#' Default is `"Dark2"`.
 #' @param ... Additional arguments to be passed to the [slingshot::slingshot] function.
 #'
-#' @seealso [CellDimPlot] [RunDynamicFeatures]
+#' @seealso [CellDimPlot], [RunDynamicFeatures], [RunDynamicEnrichment]
 #'
 #' @export
 #'
@@ -79,9 +73,10 @@ RunSlingshot <- function(
     lineage_palette = "Dark2",
     seed = 11,
     ...) {
+  check_r("slingshot", verbose = FALSE)
   if (missing(group.by)) {
     log_message(
-      "group.by is missing",
+      "{.arg group.by} must be provided",
       message_type = "error"
     )
   }
@@ -99,8 +94,7 @@ RunSlingshot <- function(
   if (min(table(srt[[group.by]])) < 2) {
     celltypes <- names(which(table(srt[[group.by]]) < 2))
     log_message(
-      paste(celltypes, collapse = ", "),
-      " have less than 2 cells. Removed from the analysis.",
+      "{.val {celltypes}} have less than 2 cells. Removed them",
       message_type = "warning"
     )
     celltypes <- setdiff(names(table(srt[[group.by]])), celltypes)
@@ -148,10 +142,6 @@ RunSlingshot <- function(
       ncol(srt[[reduction]]@cell.embeddings) == 2 ||
         ncol(srt[[reduction]]@cell.embeddings) > 3
     ) {
-      # plot(srt[[reduction]]@cell.embeddings, col = palette_colors(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
-      # lines(slingshot::SlingshotDataSet(sl), lwd = 2, type = "lineages", col = "black")
-      # plot(srt[[reduction]]@cell.embeddings, col = palette_colors(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
-      # lines(slingshot::SlingshotDataSet(sl), lwd = 3, col = 1:length(slingshot::SlingshotDataSet(sl)@lineages))
       p <- CellDimPlot(
         srt,
         group.by = group.by,

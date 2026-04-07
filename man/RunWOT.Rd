@@ -11,7 +11,7 @@ RunWOT(
   assay_y = c("spliced", "unspliced"),
   layer_y = "counts",
   adata = NULL,
-  group_by = NULL,
+  group.by = NULL,
   time_field = "Time",
   growth_iters = 3L,
   tmap_out = "tmaps/tmap_out",
@@ -19,13 +19,14 @@ RunWOT(
   time_to = NULL,
   get_coupling = FALSE,
   recalculate = FALSE,
-  palette = "Paired",
+  palette = "Chinese",
   palcolor = NULL,
   show_plot = FALSE,
-  save = FALSE,
-  dpi = 300,
+  save_plot = FALSE,
+  plot_format = c("pdf", "png", "svg"),
+  plot_dpi = 300,
+  plot_prefix = "wot",
   dirpath = "./",
-  fileprefix = "",
   return_seurat = !is.null(srt),
   verbose = TRUE
 )
@@ -34,22 +35,26 @@ RunWOT(
 \item{srt}{A Seurat object. Default is \code{NULL}.
 If provided, \code{adata} will be ignored.}
 
-\item{assay_x}{Assay to convert in the anndata object.}
+\item{assay_x}{Assay to convert as the main data matrix in the anndata object.
+Default is \code{"RNA"}.}
 
-\item{layer_x}{Layer name for \code{assay_x} in the Seurat object.}
+\item{layer_x}{Layer name for assay_x in the Seurat object.
+Default is \code{"counts"}.}
 
-\item{assay_y}{Assay to convert in the anndata object.}
+\item{assay_y}{Assays to convert as layers in the anndata object.
+Default is \code{c("spliced", "unspliced")}.}
 
-\item{layer_y}{Layer names for the \code{assay_y} in the Seurat object.}
+\item{layer_y}{Layer names for the assay_y in the Seurat object.
+Default is \code{"counts"}.}
 
 \item{adata}{An anndata object. Default is \code{NULL}.}
 
-\item{group_by}{Variable to use for grouping cells in the Seurat object.}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by.}
 
 \item{time_field}{A character string specifying the column name in \code{adata.obs} or \code{srt@meta.data} that contains the time information.}
 
 \item{growth_iters}{A number of growth iterations to perform during the OT Model computation.
-Default is 3.}
+Default is \code{3}.}
 
 \item{tmap_out}{A character string specifying the path to store the computed transport maps.}
 
@@ -64,20 +69,25 @@ Default is \code{FALSE}.}
 \item{recalculate}{Whether to recalculate the transport maps even if they already exist at the specified \code{tmap_out} location.
 Default is \code{FALSE}.}
 
-\item{palette}{The palette to use for coloring cells.}
+\item{palette}{Color palette name.
+Available palettes can be found in \link[thisplot:show_palettes]{thisplot::show_palettes}.
+Default is \code{"Chinese"}.}
 
-\item{palcolor}{A vector of colors to use as the palette.}
+\item{palcolor}{Custom colors used to create a color palette.
+Default is \code{NULL}.}
 
 \item{show_plot}{Whether to show the plot.
 Default is \code{FALSE}.}
 
-\item{save}{Whether to save the plots.}
+\item{save_plot}{Whether to save plots to files. Default is \code{FALSE}.}
 
-\item{dpi}{The DPI (dots per inch) for saving the plot.}
+\item{plot_format}{Format for saved plots: \code{"png"} (default), \code{"pdf"}, or \code{"svg"}.}
 
-\item{dirpath}{The directory to save the plots.}
+\item{plot_dpi}{Resolution (DPI) for saved plots. Default is \code{300}.}
 
-\item{fileprefix}{The file prefix to use for the plots.}
+\item{plot_prefix}{Prefix for saved plot filenames. Default is "cellrank".}
+
+\item{dirpath}{The directory to save the plots. Default is \code{"./cellrank"}.}
 
 \item{return_seurat}{Whether to return a Seurat object instead of an anndata object.
 Default is \code{TRUE}.}
@@ -102,7 +112,7 @@ print(range(pancreas_sub$Lineage1, na.rm = TRUE))
 
 pancreas_sub <- RunWOT(
   pancreas_sub,
-  group_by = "SubCellType",
+  group.by = "SubCellType",
   time_field = "Lineage1",
   time_from = min(pancreas_sub$Lineage1, na.rm = TRUE),
   time_to = max(pancreas_sub$Lineage1, na.rm = TRUE),
@@ -117,7 +127,7 @@ pancreas_sub$Custom_Time <- sample(
 )
 pancreas_sub <- RunWOT(
   pancreas_sub,
-  group_by = "CellType",
+  group.by = "CellType",
   time_field = "Custom_Time",
   time_from = 1,
   time_to = 10,
@@ -128,7 +138,4 @@ pancreas_sub <- RunWOT(
 \references{
 \href{https://doi.org/10.1016/j.cell.2019.01.006}{Geoffrey et al. (2019) Cell},
 \href{https://github.com/broadinstitute/wot}{GitHub}
-}
-\seealso{
-\link{srt_to_adata}
 }

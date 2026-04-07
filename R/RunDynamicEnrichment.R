@@ -10,7 +10,7 @@
 #' @inheritParams CellScoring
 #' @param score_method The method to use for scoring.
 #' Can be `"Seurat"`, `"AUCell"`, or `"UCell"`.
-#' Defaults to `"Seurat"`.
+#' Default is `"Seurat"`.
 #'
 #' @seealso
 #' [RunDynamicFeatures], [DynamicHeatmap]
@@ -21,26 +21,26 @@
 #' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunSlingshot(
 #'   pancreas_sub,
-#'   group.by = "SubCellType",
+#'   group.by = "CellType",
 #'   reduction = "UMAP"
 #' )
 #' pancreas_sub <- RunDynamicFeatures(
 #'   pancreas_sub,
 #'   lineages = "Lineage1",
+#'   fit_method = "pretsa",
 #'   n_candidates = 200
 #' )
 #' ht1 <- DynamicHeatmap(
 #'   pancreas_sub,
 #'   lineages = "Lineage1",
-#'   cell_annotation = "SubCellType",
-#'   n_split = 4
+#'   cell_annotation = "CellType",
+#'   n_split = 3
 #' )
-#' ht1$plot
 #'
 #' pancreas_sub <- RunDynamicEnrichment(
 #'   pancreas_sub,
 #'   lineages = "Lineage1",
-#'   score_method = "UCell",
+#'   score_method = "AUCell",
 #'   db = "GO_BP",
 #'   species = "Mus_musculus"
 #' )
@@ -48,11 +48,10 @@
 #'   pancreas_sub,
 #'   assay = "GO_BP",
 #'   lineages = "Lineage1_GO_BP",
-#'   cell_annotation = "SubCellType",
-#'   n_split = 4,
+#'   cell_annotation = "CellType",
+#'   n_split = 3,
 #'   split_method = "kmeans-peaktime"
 #' )
-#' ht2$plot
 RunDynamicEnrichment <- function(
     srt,
     lineages,
@@ -196,7 +195,9 @@ RunDynamicEnrichment <- function(
         )
       ),
       suffix = paste(lineages, term, sep = "_"),
-      assay = term
+      assay = term,
+      cores = cores,
+      verbose = verbose
     )
   }
 

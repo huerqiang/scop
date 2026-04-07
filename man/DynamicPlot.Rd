@@ -25,7 +25,7 @@ DynamicPlot(
   line_palcolor = NULL,
   add_point = TRUE,
   pt.size = 1,
-  point_palette = "Paired",
+  point_palette = "Chinese",
   point_palcolor = NULL,
   add_rug = TRUE,
   flip = FALSE,
@@ -40,6 +40,8 @@ DynamicPlot(
   nrow = NULL,
   ncol = NULL,
   byrow = TRUE,
+  cores = 1,
+  verbose = TRUE,
   seed = 11
 )
 }
@@ -48,77 +50,95 @@ DynamicPlot(
 
 \item{lineages}{A character vector specifying the lineages to plot.}
 
-\item{features}{A character vector specifying the features to plot.}
+\item{features}{A character vector of features to use.}
 
-\item{group.by}{A character specifying a metadata column to group the cells by. Default is NULL.}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by.}
 
-\item{cells}{A character vector specifying the cells to include in the plot. Default is NULL.}
+\item{cells}{A character vector of cell names to use. Default is \code{NULL}.}
 
-\item{layer}{A character string specifying the layer to use for the analysis. Default is "counts".}
+\item{layer}{Which layer to use.
+Default is \code{"counts"}.}
 
-\item{assay}{A character string specifying the assay to use for the analysis. Default is NULL.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{family}{A character specifying the model used to calculate the dynamic features if needed.
-By default, this parameter is set to NULL, and the appropriate family will be automatically determined.}
+By default, this parameter is set to \code{NULL}, and the appropriate family will be automatically determined.}
 
 \item{exp_method}{A character specifying the method to transform the expression values.
-Default is "log1p" with options "log1p", "raw", "zscore", "fc", "log2fc".}
+Default is \code{"log1p"} with options "log1p", "raw", "zscore", "fc", "log2fc".}
 
 \item{lib_normalize}{A boolean specifying whether to normalize the expression values using library size.
-Default the \code{layer} is counts, this parameter is set to TRUE.
-Otherwise, it is set to FALSE.}
+Default the \code{layer} is counts, this parameter is set to \code{TRUE}.
+Otherwise, it is set to \code{FALSE}.}
 
-\item{libsize}{A numeric vector specifying the library size for each cell. Default is NULL.}
+\item{libsize}{A numeric vector specifying the library size for each cell. Default is \code{NULL}.}
 
-\item{compare_lineages}{A boolean specifying whether to compare the lineages in the plot. Default is TRUE.}
+\item{compare_lineages}{A boolean specifying whether to compare the lineages in the plot. Default is \code{TRUE}.}
 
-\item{compare_features}{A boolean specifying whether to compare the features in the plot. Default is FALSE.}
+\item{compare_features}{A boolean specifying whether to compare the features in the plot. Default is \code{FALSE}.}
 
-\item{add_line}{A boolean specifying whether to add lines to the plot. Default is TRUE.}
+\item{add_line}{A boolean specifying whether to add lines to the plot. Default is \code{TRUE}.}
 
-\item{add_interval}{A boolean specifying whether to add confidence intervals to the plot. Default is TRUE.}
+\item{add_interval}{A boolean specifying whether to add confidence intervals to the plot. Default is \code{TRUE}.}
 
-\item{line.size}{A numeric specifying the size of the lines. Default is 1.}
+\item{line.size}{A numeric specifying the size of the lines. Default is \code{1}.}
 
-\item{line_palette}{A character string specifying the name of the palette to use for the line colors. Default is "Dark2".}
+\item{line_palette}{A character string specifying the name of the palette to use for the line colors. Default is \code{"Dark2"}.}
 
-\item{line_palcolor}{A vector specifying the colors to use for the line palette. Default is NULL.}
+\item{line_palcolor}{A vector specifying the colors to use for the line palette. Default is \code{NULL}.}
 
-\item{add_point}{A boolean specifying whether to add points to the plot. Default is TRUE.}
+\item{add_point}{A boolean specifying whether to add points to the plot. Default is \code{TRUE}.}
 
-\item{pt.size}{A numeric specifying the size of the points. Default is 1.}
+\item{pt.size}{A numeric specifying the size of the points. Default is \code{1}.}
 
-\item{point_palette}{A character string specifying the name of the palette to use for the point colors. Default is "Paired".}
+\item{point_palette}{A character string specifying the name of the palette to use for the point colors. Default is \code{"Chinese"}.}
 
-\item{point_palcolor}{A vector specifying the colors to use for the point palette. Default is NULL.}
+\item{point_palcolor}{A vector specifying the colors to use for the point palette. Default is \code{NULL}.}
 
-\item{add_rug}{A boolean specifying whether to add rugs to the plot. Default is TRUE.}
+\item{add_rug}{A boolean specifying whether to add rugs to the plot. Default is \code{TRUE}.}
 
-\item{flip}{A boolean specifying whether to flip the x-axis. Default is FALSE.}
+\item{flip}{A boolean specifying whether to flip the x-axis. Default is \code{FALSE}.}
 
-\item{reverse}{A boolean specifying whether to reverse the x-axis. Default is FALSE.}
+\item{reverse}{A boolean specifying whether to reverse the x-axis. Default is \code{FALSE}.}
 
-\item{x_order}{A character specifying the order of the x-axis values. Default is c("value", "rank").}
+\item{x_order}{A character specifying the order of the x-axis values. Default is \code{c("value", "rank")}.}
 
-\item{aspect.ratio}{A numeric specifying the aspect ratio of the plot. Default is NULL.}
+\item{aspect.ratio}{Aspect ratio of the panel. Default is \code{NULL}.}
 
-\item{legend.position}{A character string specifying the position of the legend in the plot. Default is "right".}
+\item{legend.position}{The position of legends,
+one of \code{"none"}, \code{"left"}, \code{"right"}, \code{"bottom"}, \code{"top"}.
+Default is \code{"right"}.}
 
-\item{legend.direction}{A character string specifying the direction of the legend in the plot. Default is "vertical".}
+\item{legend.direction}{The direction of the legend in the plot.
+Can be one of \code{"vertical"} or \code{"horizontal"}.}
 
-\item{theme_use}{A character string specifying the name of the theme to use for the plot. Default is "theme_scop".}
+\item{theme_use}{Theme used. Can be a character string or a theme function.
+Default is \code{"theme_scop"}.}
 
-\item{theme_args}{A list specifying the arguments to pass to the theme function. Default is list().}
+\item{theme_args}{Other arguments passed to the \code{theme_use}.
+Default is \code{list()}.}
 
-\item{combine}{A boolean specifying whether to combine multiple plots into a single plot. Default is TRUE.}
+\item{combine}{Combine plots into a single \code{patchwork} object.
+If \code{FALSE}, return a list of ggplot objects.}
 
-\item{nrow}{A numeric specifying the number of rows in the combined plot. Default is NULL.}
+\item{nrow}{Number of rows in the combined plot.
+Default is \code{NULL}, which means determined automatically based on the number of plots.}
 
-\item{ncol}{A numeric specifying the number of columns in the combined plot. Default is NULL.}
+\item{ncol}{Number of columns in the combined plot.
+Default is \code{NULL}, which means determined automatically based on the number of plots.}
 
-\item{byrow}{A boolean specifying whether to fill plots by row in the combined plot. Default is TRUE.}
+\item{byrow}{Whether to arrange the plots by row in the combined plot.
+Default is \code{TRUE}.}
 
-\item{seed}{A numeric specifying the random seed. Default is 11.}
+\item{cores}{The number of cores to use for parallelization with \link[foreach:foreach]{foreach::foreach}.
+Default is \code{1}.}
+
+\item{verbose}{Whether to print the message.
+Default is \code{TRUE}.}
+
+\item{seed}{Random seed for reproducibility.
+Default is \code{11}.}
 }
 \description{
 Plot dynamic features across pseudotime

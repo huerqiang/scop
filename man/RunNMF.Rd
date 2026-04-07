@@ -26,6 +26,7 @@ RunNMF(object, ...)
   reduction.key = "BE_",
   verbose = TRUE,
   seed.use = 11,
+  cores = 0,
   ...
 )
 
@@ -44,6 +45,7 @@ RunNMF(object, ...)
   reduction.key = "BE_",
   verbose = TRUE,
   seed.use = 11,
+  cores = 0,
   ...
 )
 
@@ -62,6 +64,7 @@ RunNMF(object, ...)
   reduction.key = "BE_",
   verbose = TRUE,
   seed.use = 11,
+  cores = 0,
   ...
 )
 
@@ -78,6 +81,7 @@ RunNMF(object, ...)
   nfeatures.print = 30,
   reduction.key = "BE_",
   verbose = TRUE,
+  cores = 0,
   seed.use = 11,
   ...
 )
@@ -87,14 +91,13 @@ RunNMF(object, ...)
 
 \item{...}{Additional arguments passed to \link[RcppML:nmf]{RcppML::nmf} or \link[NMF:nmf]{NMF::nmf}.}
 
-\item{assay}{The assay to be used for the analysis.
-Default is \code{NULL}.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
-\item{layer}{The layer to be used for the analysis.
-Default is \code{"data"}.}
+\item{layer}{Which layer to use.
+Default is \code{data}.}
 
-\item{features}{The features to be used for the analysis.
-Default is \code{NULL}, which uses all variable features.}
+\item{features}{A character vector of features to use. Default is \code{NULL}.}
 
 \item{nbes}{The number of basis vectors (components) to be computed.
 Default is \code{50}.}
@@ -127,8 +130,12 @@ Default is \code{"BE_"}.}
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
 
-\item{seed.use}{The random seed to be used.
+\item{seed.use}{Random seed for reproducibility.
 Default is \code{11}.}
+
+\item{cores}{The number of threads to be used in \code{RcppML} functions that are parallelized with \code{OpenMP}.
+If \code{0}, the number of threads will be automatically determined by \code{\link[RcppML:setRcppMLthreads]{RcppML::setRcppMLthreads()}}.
+Default is \code{0}.}
 }
 \description{
 Run NMF (non-negative matrix factorization)
@@ -142,5 +149,15 @@ CellDimPlot(
   pancreas_sub,
   group.by = "CellType",
   reduction = "nmf"
+)
+
+FeatureDimPlot(
+  pancreas_sub,
+  features = c("BE_1", "BE_2", "BE_3"),
+  reduction = "UMAP",
+  palette = "RdBu",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2",
+  theme_use = "theme_blank"
 )
 }

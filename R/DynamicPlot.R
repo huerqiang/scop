@@ -1,46 +1,37 @@
 #' @title Plot dynamic features across pseudotime
 #'
 #' @md
-#' @param srt A Seurat object.
-#' @param features A character vector specifying the features to plot.
+#' @inheritParams standard_scop
+#' @inheritParams CellDimPlot
+#' @inheritParams GroupHeatmap
+#' @inheritParams RunDynamicFeatures
+#' @param features A character vector of features to use.
 #' @param lineages A character vector specifying the lineages to plot.
-#' @param group.by A character specifying a metadata column to group the cells by. Default is NULL.
-#' @param cells A character vector specifying the cells to include in the plot. Default is NULL.
-#' @param layer A character string specifying the layer to use for the analysis. Default is "counts".
-#' @param assay A character string specifying the assay to use for the analysis. Default is NULL.
+#' @param cells A character vector of cell names to use. Default is `NULL`.
 #' @param family A character specifying the model used to calculate the dynamic features if needed.
-#' By default, this parameter is set to NULL, and the appropriate family will be automatically determined.
+#' By default, this parameter is set to `NULL`, and the appropriate family will be automatically determined.
 #' @param exp_method A character specifying the method to transform the expression values.
-#' Default is "log1p" with options "log1p", "raw", "zscore", "fc", "log2fc".
+#' Default is `"log1p"` with options "log1p", "raw", "zscore", "fc", "log2fc".
 #' @param lib_normalize A boolean specifying whether to normalize the expression values using library size.
-#' Default the `layer` is counts, this parameter is set to TRUE.
-#' Otherwise, it is set to FALSE.
-#' @param libsize A numeric vector specifying the library size for each cell. Default is NULL.
-#' @param compare_lineages A boolean specifying whether to compare the lineages in the plot. Default is TRUE.
-#' @param compare_features A boolean specifying whether to compare the features in the plot. Default is FALSE.
-#' @param add_line A boolean specifying whether to add lines to the plot. Default is TRUE.
-#' @param add_interval A boolean specifying whether to add confidence intervals to the plot. Default is TRUE.
-#' @param line.size A numeric specifying the size of the lines. Default is 1.
-#' @param line_palette A character string specifying the name of the palette to use for the line colors. Default is "Dark2".
-#' @param line_palcolor A vector specifying the colors to use for the line palette. Default is NULL.
-#' @param add_point A boolean specifying whether to add points to the plot. Default is TRUE.
-#' @param pt.size A numeric specifying the size of the points. Default is 1.
-#' @param point_palette A character string specifying the name of the palette to use for the point colors. Default is "Paired".
-#' @param point_palcolor A vector specifying the colors to use for the point palette. Default is NULL.
-#' @param add_rug A boolean specifying whether to add rugs to the plot. Default is TRUE.
-#' @param flip A boolean specifying whether to flip the x-axis. Default is FALSE.
-#' @param reverse A boolean specifying whether to reverse the x-axis. Default is FALSE.
-#' @param x_order A character specifying the order of the x-axis values. Default is c("value", "rank").
-#' @param aspect.ratio A numeric specifying the aspect ratio of the plot. Default is NULL.
-#' @param legend.position A character string specifying the position of the legend in the plot. Default is "right".
-#' @param legend.direction A character string specifying the direction of the legend in the plot. Default is "vertical".
-#' @param theme_use A character string specifying the name of the theme to use for the plot. Default is "theme_scop".
-#' @param theme_args A list specifying the arguments to pass to the theme function. Default is list().
-#' @param combine A boolean specifying whether to combine multiple plots into a single plot. Default is TRUE.
-#' @param nrow A numeric specifying the number of rows in the combined plot. Default is NULL.
-#' @param ncol A numeric specifying the number of columns in the combined plot. Default is NULL.
-#' @param byrow A boolean specifying whether to fill plots by row in the combined plot. Default is TRUE.
-#' @param seed A numeric specifying the random seed. Default is 11.
+#' Default the `layer` is counts, this parameter is set to `TRUE`.
+#' Otherwise, it is set to `FALSE`.
+#' @param libsize A numeric vector specifying the library size for each cell. Default is `NULL`.
+#' @param compare_lineages A boolean specifying whether to compare the lineages in the plot. Default is `TRUE`.
+#' @param compare_features A boolean specifying whether to compare the features in the plot. Default is `FALSE`.
+#' @param add_line A boolean specifying whether to add lines to the plot. Default is `TRUE`.
+#' @param add_interval A boolean specifying whether to add confidence intervals to the plot. Default is `TRUE`.
+#' @param line.size A numeric specifying the size of the lines. Default is `1`.
+#' @param line_palette A character string specifying the name of the palette to use for the line colors. Default is `"Dark2"`.
+#' @param line_palcolor A vector specifying the colors to use for the line palette. Default is `NULL`.
+#' @param add_point A boolean specifying whether to add points to the plot. Default is `TRUE`.
+#' @param pt.size A numeric specifying the size of the points. Default is `1`.
+#' @param point_palette A character string specifying the name of the palette to use for the point colors. Default is `"Chinese"`.
+#' @param point_palcolor A vector specifying the colors to use for the point palette. Default is `NULL`.
+#' @param add_rug A boolean specifying whether to add rugs to the plot. Default is `TRUE`.
+#' @param flip A boolean specifying whether to flip the x-axis. Default is `FALSE`.
+#' @param reverse A boolean specifying whether to reverse the x-axis. Default is `FALSE`.
+#' @param x_order A character specifying the order of the x-axis values. Default is `c("value", "rank")`.
+#' @param aspect.ratio Aspect ratio of the panel. Default is `NULL`.
 #'
 #' @seealso [RunDynamicFeatures]
 #'
@@ -115,7 +106,7 @@ DynamicPlot <- function(
     line_palcolor = NULL,
     add_point = TRUE,
     pt.size = 1,
-    point_palette = "Paired",
+    point_palette = "Chinese",
     point_palcolor = NULL,
     add_rug = TRUE,
     flip = FALSE,
@@ -130,10 +121,12 @@ DynamicPlot <- function(
     nrow = NULL,
     ncol = NULL,
     byrow = TRUE,
+    cores = 1,
+    verbose = TRUE,
     seed = 11) {
   set.seed(seed)
 
-  check_r("MatrixGenerics")
+  check_r("MatrixGenerics", verbose = FALSE)
   x_order <- match.arg(x_order)
   if (!is.null(group.by) && !group.by %in% colnames(srt@meta.data)) {
     log_message(
@@ -202,7 +195,9 @@ DynamicPlot <- function(
         assay = assay,
         layer = layer,
         family = family,
-        libsize = libsize
+        libsize = libsize,
+        cores = cores,
+        verbose = verbose
       )
       if (is.null(raw_matrix)) {
         raw_matrix <- fitted_matrix <- upr_matrix <- lwr_matrix <- matrix(

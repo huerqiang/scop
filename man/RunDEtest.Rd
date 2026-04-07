@@ -6,7 +6,7 @@
 \usage{
 RunDEtest(
   srt,
-  group_by = NULL,
+  group.by = NULL,
   group1 = NULL,
   group2 = NULL,
   cells1 = NULL,
@@ -40,14 +40,14 @@ RunDEtest(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{group_by}{A grouping variable in the dataset to define the groups or conditions for the differential test.
+\item{group.by}{A grouping variable in the dataset to define the groups or conditions for the differential test.
 If not provided, the function uses the "active.ident" variable in the Seurat object.}
 
 \item{group1}{A vector of cell IDs or a character vector specifying the cells that belong to the first group.
-If both group_by and group1 are provided, group1 takes precedence.}
+If both group.by and group1 are provided, group1 takes precedence.}
 
 \item{group2}{A vector of cell IDs or a character vector specifying the cells that belong to the second group.
-This parameter is only used when group_by or group1 is provided.}
+This parameter is only used when group.by or group1 is provided.}
 
 \item{cells1}{A vector of cell IDs specifying the cells that belong to group1. If provided, group1 is ignored.}
 
@@ -155,14 +155,16 @@ Default is \code{"LogNormalize"}.}
 \item{p.adjust.method}{A character value specifying the method to use for adjusting p-values.
 Default is \code{"bonferroni"}.}
 
-\item{layer}{The layer used.}
+\item{layer}{Which layer to use.
+Default is \code{data}.}
 
 \item{assay}{Assay to use in differential expression testing}
 
-\item{seed}{An integer value specifying the seed.
+\item{seed}{Random seed for reproducibility.
 Default is \code{11}.}
 
-\item{verbose}{Print a progress bar once expression testing begins}
+\item{verbose}{Whether to print the message.
+Default is \code{TRUE}.}
 
 \item{cores}{The number of cores to use for parallelization with \link[foreach:foreach]{foreach::foreach}.
 Default is \code{1}.}
@@ -178,7 +180,7 @@ data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunDEtest(
   pancreas_sub,
-  group_by = "SubCellType"
+  group.by = "SubCellType"
 )
 AllMarkers <- dplyr::filter(
   pancreas_sub@tools$DEtest_SubCellType$AllMarkers_wilcox,
@@ -208,7 +210,7 @@ ht2$plot
 
 pancreas_sub <- RunDEtest(
   pancreas_sub,
-  group_by = "SubCellType",
+  group.by = "SubCellType",
   markers_type = "paired",
   cores = 2
 )
@@ -237,7 +239,7 @@ CellDimPlot(
 
 panc8_sub <- RunDEtest(
   srt = panc8_sub,
-  group_by = "celltype",
+  group.by = "celltype",
   grouping.var = "tech",
   markers_type = "conserved",
   cores = 2
@@ -259,7 +261,7 @@ ht4$plot
 
 panc8_sub <- RunDEtest(
   srt = panc8_sub,
-  group_by = "tech",
+  group.by = "tech",
   grouping.var = "celltype",
   markers_type = "conserved",
   cores = 2
@@ -280,7 +282,7 @@ ht4$plot
 
 panc8_sub <- RunDEtest(
   srt = panc8_sub,
-  group_by = "celltype",
+  group.by = "celltype",
   grouping.var = "tech",
   markers_type = "disturbed",
   cores = 2
@@ -326,5 +328,5 @@ ht7 <- GroupHeatmap(
 ht7$plot
 }
 \seealso{
-\link{RunEnrichment}, \link{RunGSEA}, \link{GroupHeatmap}
+\link{VolcanoPlot}, \link{RunEnrichment}, \link{RunGSEA}, \link{GroupHeatmap}
 }

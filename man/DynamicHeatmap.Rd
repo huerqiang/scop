@@ -27,6 +27,13 @@ DynamicHeatmap(
   lib_normalize = identical(layer, "counts"),
   libsize = NULL,
   family = NULL,
+  suffix = lineages,
+  n_candidates = 1000,
+  minfreq = 5,
+  fit_method = c("gam", "pretsa"),
+  knot = 0,
+  max_knot_allowed = 10,
+  padjust_method = "fdr",
   cluster_features_by = NULL,
   cluster_rows = FALSE,
   cluster_row_slices = FALSE,
@@ -98,7 +105,7 @@ DynamicHeatmap(
   feature_split_palette = "simspec",
   feature_split_palcolor = NULL,
   cell_annotation = NULL,
-  cell_annotation_palette = "Paired",
+  cell_annotation_palette = "Chinese",
   cell_annotation_palcolor = NULL,
   cell_annotation_params = if (flip) {
      list(width = grid::unit(5, "mm"))
@@ -116,7 +123,7 @@ DynamicHeatmap(
      list(width = grid::unit(5, "mm"))
  },
   separate_annotation = NULL,
-  separate_annotation_palette = "Paired",
+  separate_annotation_palette = "Chinese",
   separate_annotation_palcolor = NULL,
   separate_annotation_params = if (flip) {
      list(width = grid::unit(10, "mm"))
@@ -127,10 +134,12 @@ DynamicHeatmap(
   reverse_ht = NULL,
   use_raster = NULL,
   raster_device = "png",
-  raster_by_magick = FALSE,
+  raster_by_magick = TRUE,
   height = NULL,
   width = NULL,
   units = "inch",
+  cores = 1,
+  verbose = TRUE,
   seed = 11,
   ht_params = list()
 )
@@ -138,7 +147,7 @@ DynamicHeatmap(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{lineages}{A character vector specifying the lineages to plot.}
+\item{lineages}{A character vector specifying the lineage names for which dynamic features should be calculated.}
 
 \item{features}{A character vector specifying the features to plot.
 By default, this parameter is set to NULL, and the dynamic features will be determined by the parameters
@@ -146,9 +155,11 @@ By default, this parameter is set to NULL, and the dynamic features will be dete
 
 \item{use_fitted}{Whether to use fitted values. Default is \code{FALSE}.}
 
-\item{border}{Whether to add a border to the heatmap. Default is \code{TRUE}.}
+\item{border}{Whether to add a border to the heatmap.
+Default is \code{TRUE}.}
 
-\item{flip}{Whether to flip the heatmap. Default is \code{FALSE}.}
+\item{flip}{Whether to flip the heatmap.
+Default is \code{FALSE}.}
 
 \item{min_expcells}{The minimum number of expected cells. Default is \code{20}.}
 
@@ -172,11 +183,11 @@ Default is \code{100}.}
 \item{order_by}{The order of the heatmap.
 Default is \code{"peaktime"}.}
 
-\item{layer}{A character vector specifying the layer in the Seurat object to use.
+\item{layer}{Which layer to use.
 Default is \code{"counts"}.}
 
-\item{assay}{A character vector specifying the assay in the Seurat object to use.
-Default is \code{NULL}.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{exp_method}{A character vector specifying the method for calculating expression values.
 Options are \code{"zscore"}, \code{"raw"}, \code{"fc"}, \code{"log2fc"}, or \code{"log1p"}.
@@ -193,8 +204,33 @@ Default is \code{NULL}.}
 \item{libsize}{A numeric vector specifying the library size for each cell.
 Default is \code{NULL}.}
 
-\item{family}{The model used to calculate the dynamic features if needed.
-By default, this parameter is set to \code{NULL}, and the appropriate family will be automatically determined.}
+\item{family}{A character or character vector specifying the family of distributions to use for the GAM.
+If family is set to NULL, the appropriate family will be automatically determined based on the data.
+If length(family) is 1, the same family will be used for all features.
+Otherwise, family must have the same length as features.}
+
+\item{suffix}{A character vector specifying the suffix to append to the output layer names for each lineage.
+Default is the lineage names.}
+
+\item{n_candidates}{A number of candidate features to select when features is \code{NULL}.
+Default is \code{1000}.}
+
+\item{minfreq}{An integer specifying the minimum frequency threshold for candidate features.
+Features with a frequency less than minfreq will be excluded.
+Default is \code{5}.}
+
+\item{fit_method}{The method used for fitting features.
+Either \code{"gam"} (generalized additive models) or \code{"pretsa"} (Pattern recognition in Temporal and Spatial Analyses).
+Default is \code{"gam"}.}
+
+\item{knot}{For \code{fit_method = "pretsa"}: B-spline knots. \code{0} or \code{"auto"}.
+Default is \code{0}.}
+
+\item{max_knot_allowed}{For \code{fit_method = "pretsa"} when \code{knot = "auto"}: max knots.
+Default is \code{10}.}
+
+\item{padjust_method}{The method used for p-value adjustment.
+Default is \code{"fdr"}.}
 
 \item{cluster_features_by}{Which lineage to use when clustering features.
 By default, this parameter is set to \code{NULL}, which means that all lineages will be used.}
@@ -299,20 +335,21 @@ Default is \code{"symbol"}.}
 \item{species}{A character vector specifying the species for features.
 Default is \code{"Homo_sapiens"}.}
 
-\item{db_update}{Whether to update the database.
+\item{db_update}{Whether the gene annotation databases should be forcefully updated.
+If set to FALSE, the function will attempt to load the cached databases instead.
 Default is \code{FALSE}.}
 
-\item{db_version}{A character vector specifying the version of the database.
+\item{db_version}{A character vector specifying the version of the gene annotation databases to be retrieved.
 Default is \code{"latest"}.}
 
 \item{db_combine}{Whether to use a combined database.
 Default is \code{FALSE}.}
 
-\item{convert_species}{Whether to use a species-converted database if annotation is missing for \code{species}.
-Default is \code{FALSE}.}
+\item{convert_species}{Whether to use a species-converted database when the annotation is missing for the specified species.
+Default is \code{TRUE}.}
 
 \item{Ensembl_version}{An integer specifying the Ensembl version.
-Default is \code{103}.}
+Default is \code{NULL}. If \code{NULL}, the latest version will be used.}
 
 \item{mirror}{A character vector specifying the mirror for the Ensembl database.
 Default is \code{NULL}.}
@@ -363,7 +400,7 @@ Default is \code{20}.}
 Default is \code{NULL}.}
 
 \item{nlabel}{A number of labels to include.
-Default is \code{0}.}
+Default is \code{20}.}
 
 \item{features_label}{A character vector specifying the features to label.
 Default is \code{NULL}.}
@@ -409,7 +446,7 @@ Default is \code{NULL}.}
 
 \item{cell_annotation_palette}{A character vector specifying the palette to use for cell annotations.
 The length of the vector should match the number of cell_annotation.
-Default is \code{"Paired"}.}
+Default is \code{"Chinese"}.}
 
 \item{cell_annotation_palcolor}{A list of character vector specifying the cell annotation color(s) to use.
 The length of the list should match the number of cell_annotation.
@@ -430,13 +467,13 @@ The length of the list should match the number of feature_annotation.
 Default is \code{NULL}.}
 
 \item{feature_annotation_params}{A list specifying additional parameters for feature annotations.
-Default is an empty list.}
+Default is \code{list()}.}
 
 \item{separate_annotation}{Names of the annotations to be displayed in separate annotation blocks.
 Each name should match a column name in the metadata of the \code{Seurat} object.}
 
 \item{separate_annotation_palette}{The color palette to use for separate annotations.
-Default is \code{"Paired"}.}
+Default is \code{"Chinese"}.}
 
 \item{separate_annotation_palcolor}{The colors to use for each level of the separate annotations.
 Default is \code{NULL}.}
@@ -455,26 +492,33 @@ Default is \code{"png"}.}
 \item{raster_by_magick}{Whether to use the 'magick' package for raster.
 Default is \code{FALSE}.}
 
-\item{height}{A numeric vector specifying the height(s) of the heatmap body.
-Default is \code{NULL}.}
+\item{height}{The height of the heatmap in the specified units.
+If not provided, the height will be automatically determined based on the number of rows in the heatmap and the default unit.}
 
-\item{width}{A numeric vector specifying the width(s) of the heatmap body.
-Default is \code{NULL}.}
+\item{width}{The width of the heatmap in the specified units.
+If not provided, the width will be automatically determined based on the number of columns in the heatmap and the default unit.}
 
-\item{units}{A character vector specifying the units for the height and width.
-Default is \code{"inch"}.}
+\item{units}{The units to use for the width and height of the heatmap.
+Default is \code{"inch"}, Options are \code{"mm"}, \code{"cm"}, or \code{"inch"}.}
 
-\item{seed}{An integer specifying the random seed.
+\item{cores}{The number of cores to use for parallelization with \link[foreach:foreach]{foreach::foreach}.
+Default is \code{1}.}
+
+\item{verbose}{Whether to print the message.
+Default is \code{TRUE}.}
+
+\item{seed}{Random seed for reproducibility.
 Default is \code{11}.}
 
-\item{ht_params}{A list specifying additional parameters passed to the \link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap} function.
-Default is an empty list.}
+\item{ht_params}{Additional parameters to customize the appearance of the heatmap.
+This should be a list with named elements, where the names correspond to parameter names in the \link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap} function.
+Any conflicting parameters will override the defaults set by this function.
+Default is \code{list()}.}
 }
 \description{
 Heatmap plot for dynamic features along lineages
 }
 \examples{
-options(log_message.verbose = FALSE)
 data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 
@@ -485,16 +529,20 @@ pancreas_sub <- RunSlingshot(
 )
 pancreas_sub <- RunDynamicFeatures(
   pancreas_sub,
-  lineages = c("Lineage1", "Lineage2"),
+  lineages = c("Lineage1", "Lineage2"),,
+  fit_method = "pretsa",
   n_candidates = 200
 )
 
 ht1 <- DynamicHeatmap(
   pancreas_sub,
+  exp_legend_title = "Z-score",
   lineages = "Lineage1",
   n_split = 5,
   split_method = "kmeans-peaktime",
-  cell_annotation = "SubCellType"
+  cell_annotation = "SubCellType",
+  width = 2,
+  height = 3
 )
 ht1$plot
 
@@ -502,76 +550,101 @@ thisplot::panel_fix(ht1$plot, raster = TRUE, dpi = 50)
 
 ht2 <- DynamicHeatmap(
   pancreas_sub,
+  exp_legend_title = "Z-score",
   lineages = "Lineage1",
   features = c(
     "Sox9",
     "Neurod2",
     "Isl1",
     "Rbp4",
-    "Pyy", "S_score", "G2M_score"
+    "Pyy",
+    "S_score",
+    "G2M_score"
   ),
   cell_annotation = "SubCellType"
 )
 ht2$plot
 
-thisplot::panel_fix(
-  ht2$plot,
-  height = 5,
-  width = 5,
-  raster = TRUE,
-  dpi = 50
-)
-
 ht3 <- DynamicHeatmap(
   pancreas_sub,
+  exp_legend_title = "Z-score",
   lineages = c("Lineage1", "Lineage2"),
   n_split = 5,
+  nlabel = 10,
   split_method = "kmeans",
   cluster_rows = TRUE,
-  cell_annotation = "SubCellType"
+  cell_annotation = "SubCellType",
+  width = 1,
+  height = 2
 )
 ht3$plot
 
 ht4 <- DynamicHeatmap(
   pancreas_sub,
+  exp_legend_title = "Z-score",
   lineages = c("Lineage1", "Lineage2"),
   reverse_ht = "Lineage1",
   cell_annotation = "SubCellType",
-  n_split = 5,
+  n_split = 3,
+  nlabel = 10,
   split_method = "mfuzz",
   species = "Mus_musculus",
   db = "GO_BP",
   anno_terms = TRUE,
-  anno_keys = TRUE,
-  anno_features = TRUE
+  width = 1,
+  height = 2
 )
-ht4$plot
 
-\dontrun{
+ht5 <- DynamicHeatmap(
+  pancreas_sub,
+  exp_legend_title = "Z-score",
+  lineages = "Lineage1",
+  cell_annotation = "SubCellType",
+  n_split = 2,
+  split_method = "mfuzz",
+  species = "Mus_musculus",
+  db = "GO_BP",
+  cores = 2,
+  nlabel = 10,
+  anno_terms = TRUE,
+  anno_keys = TRUE,
+  anno_features = TRUE,
+  width = 1,
+  height = 2,
+  terms_width = grid::unit(1, "in"),
+  terms_fontsize = 6,
+  keys_width = grid::unit(0.5, "in"),
+  keys_fontsize = c(3, 6),
+  features_width = grid::unit(0.5, "in"),
+  features_fontsize = c(3, 6)
+)
+
 pancreas_sub <- AnnotateFeatures(
   pancreas_sub,
   species = "Mus_musculus",
   db = c("CSPA", "TF")
 )
-ht5 <- DynamicHeatmap(
+ht6 <- DynamicHeatmap(
   pancreas_sub,
+  exp_legend_title = "Z-score",
   lineages = c("Lineage1", "Lineage2"),
   reverse_ht = "Lineage1",
   use_fitted = TRUE,
-  n_split = 6,
+  n_split = 3,
+  nlabel = 10,
   split_method = "mfuzz",
   heatmap_palette = "viridis",
   cell_annotation = c(
     "SubCellType", "Phase", "G2M_score"
   ),
   cell_annotation_palette = c(
-    "Paired", "simspec", "Purples"
+    "Chinese", "simspec", "Purples"
   ),
   separate_annotation = list(
     "SubCellType", c("Arxes1", "Ncoa2")
   ),
   separate_annotation_palette = c(
-    "Paired", "Set1"
+    "Chinese", "Set1"
   ),
   separate_annotation_params = list(
     height = grid::unit(10, "mm")
@@ -582,28 +655,31 @@ ht5 <- DynamicHeatmap(
     c("forestgreen")
   ),
   pseudotime_label = 25,
-  pseudotime_label_color = "red"
+  pseudotime_label_color = "red",
+  width = 1,
+  height = 2
 )
-ht5$plot
 
-ht6 <- DynamicHeatmap(
+ht7 <- DynamicHeatmap(
   pancreas_sub,
+  exp_legend_title = "Z-score",
   lineages = c("Lineage1", "Lineage2"),
   reverse_ht = "Lineage1",
   use_fitted = TRUE,
-  n_split = 6,
+  n_split = 3,
+  nlabel = 10,
   split_method = "mfuzz",
   heatmap_palette = "viridis",
   cell_annotation = c(
     "SubCellType", "Phase", "G2M_score"
   ),
   cell_annotation_palette = c(
-    "Paired", "simspec", "Purples"
+    "Chinese", "simspec", "Purples"
   ),
   separate_annotation = list(
     "SubCellType", c("Arxes1", "Ncoa2")
   ),
-  separate_annotation_palette = c("Paired", "Set1"),
+  separate_annotation_palette = c("Chinese", "Set1"),
   separate_annotation_params = list(width = grid::unit(10, "mm")),
   feature_annotation = c("TF", "CSPA"),
   feature_annotation_palcolor = list(
@@ -612,10 +688,11 @@ ht6 <- DynamicHeatmap(
   ),
   pseudotime_label = 25,
   pseudotime_label_color = "red",
-  flip = TRUE, column_title_rot = 45
+  flip = TRUE,
+  column_title_rot = 90,
+  width = 2,
+  height = 1
 )
-ht6$plot
-}
 }
 \seealso{
 \link{RunDynamicFeatures}, \link{RunDynamicEnrichment}

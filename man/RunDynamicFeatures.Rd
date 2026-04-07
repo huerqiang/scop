@@ -2,7 +2,7 @@
 % Please edit documentation in R/RunDynamicFeatures.R
 \name{RunDynamicFeatures}
 \alias{RunDynamicFeatures}
-\title{RunDynamicFeatures}
+\title{Calculates dynamic features for lineages}
 \usage{
 RunDynamicFeatures(
   srt,
@@ -15,6 +15,10 @@ RunDynamicFeatures(
   layer = "counts",
   assay = NULL,
   libsize = NULL,
+  fit_method = c("gam", "pretsa"),
+  knot = 0,
+  max_knot_allowed = 10,
+  padjust_method = "fdr",
   cores = 1,
   verbose = TRUE,
   seed = 11
@@ -25,34 +29,48 @@ RunDynamicFeatures(
 
 \item{lineages}{A character vector specifying the lineage names for which dynamic features should be calculated.}
 
-\item{features}{A character vector specifying the features (genes or metadata variables) for which dynamic features should be calculated.
-If NULL, n_candidates must be provided.}
+\item{features}{A character vector of features to use.
+If \code{NULL}, n_candidates must be provided.}
 
 \item{suffix}{A character vector specifying the suffix to append to the output layer names for each lineage.
-Defaults to the lineage names.}
+Default is the lineage names.}
 
-\item{n_candidates}{A number of candidate features to select when features is NULL.
-Defaults to \code{1000}.}
+\item{n_candidates}{A number of candidate features to select when features is \code{NULL}.
+Default is \code{1000}.}
 
 \item{minfreq}{An integer specifying the minimum frequency threshold for candidate features.
-Features with a frequency less than minfreq will be excluded. Defaults to \code{5}.}
+Features with a frequency less than minfreq will be excluded.
+Default is \code{5}.}
 
-\item{family}{A character or character vector specifying the family of distributions to use for the generalized additive models (GAMs).
+\item{family}{A character or character vector specifying the family of distributions to use for the GAM.
 If family is set to NULL, the appropriate family will be automatically determined based on the data.
 If length(family) is 1, the same family will be used for all features.
 Otherwise, family must have the same length as features.}
 
-\item{layer}{A character vector specifying the layer in the Seurat object to use.
+\item{layer}{Which layer to use.
 Default is \code{"counts"}.}
 
-\item{assay}{A character vector specifying the assay in the Seurat object to use.
-Default is \code{NULL}.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{libsize}{A numeric or numeric vector specifying the library size correction factors for each cell.
 If NULL, the library size correction factors will be calculated based on the expression matrix.
 If length(libsize) is 1, the same value will be used for all cells.
 Otherwise, libsize must have the same length as the number of cells in srt.
-Defaults to \code{NULL}.}
+Default is \code{NULL}.}
+
+\item{fit_method}{The method used for fitting features.
+Either \code{"gam"} (generalized additive models) or \code{"pretsa"} (Pattern recognition in Temporal and Spatial Analyses).
+Default is \code{"gam"}.}
+
+\item{knot}{For \code{fit_method = "pretsa"}: B-spline knots. \code{0} or \code{"auto"}.
+Default is \code{0}.}
+
+\item{max_knot_allowed}{For \code{fit_method = "pretsa"} when \code{knot = "auto"}: max knots.
+Default is \code{10}.}
+
+\item{padjust_method}{The method used for p-value adjustment.
+Default is \code{"fdr"}.}
 
 \item{cores}{The number of cores to use for parallelization with \link[foreach:foreach]{foreach::foreach}.
 Default is \code{1}.}
@@ -60,13 +78,14 @@ Default is \code{1}.}
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
 
-\item{seed}{An integer specifying the seed for random number generation. Defaults to \code{11}.}
+\item{seed}{Random seed for reproducibility.
+Default is \code{11}.}
 }
 \value{
 Returns the modified Seurat object with the calculated dynamic features stored in the tools slot.
 }
 \description{
-Calculates dynamic features for lineages in a single-cell RNA-seq dataset.
+Calculates dynamic features for lineages
 }
 \examples{
 data(pancreas_sub)
@@ -80,7 +99,8 @@ pancreas_sub <- RunSlingshot(
 pancreas_sub <- RunDynamicFeatures(
   pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  n_candidates = 200
+  n_candidates = 200,
+  fit_method = "gam"
 )
 
 names(
@@ -93,7 +113,7 @@ ht <- DynamicHeatmap(
   pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
-  n_split = 6,
+  n_split = 3,
   reverse_ht = "Lineage1"
 )
 ht$plot
@@ -106,6 +126,37 @@ DynamicPlot(
   compare_lineages = TRUE,
   compare_features = FALSE
 )
+
+pancreas_sub <- RunDynamicFeatures(
+  pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  n_candidates = 200,
+  fit_method = "pretsa"
+)
+head(
+  pancreas_sub@tools$DynamicFeatures_Lineage1$DynamicFeatures
+)
+ht <- DynamicHeatmap(
+  pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  cell_annotation = "SubCellType",
+  n_split = 3,
+  reverse_ht = "Lineage1"
+)
+ht$plot
+
+DynamicPlot(
+  pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  features = c("Arxes1", "Ncoa2"),
+  group.by = "SubCellType",
+  compare_lineages = TRUE,
+  compare_features = FALSE
+)
+}
+\references{
+Zhuang, H., Ji, Z. PreTSA: computationally efficient modeling of temporal and spatial gene expression patterns.
+Genome Biol (2026). https://doi.org/10.1186/s13059-026-03994-3
 }
 \seealso{
 \link{DynamicHeatmap}, \link{DynamicPlot}, \link{RunDynamicEnrichment}

@@ -11,10 +11,10 @@ ExpressionStatPlot <- function(
     keep_empty = FALSE,
     individual = FALSE,
     plot_type = c("violin", "box", "bar", "dot", "col"),
-    palette = "Paired",
+    palette = "Chinese",
     palcolor = NULL,
     alpha = 1,
-    bg_palette = "Paired",
+    bg_palette = "Chinese",
     bg_palcolor = NULL,
     bg_alpha = 0.2,
     add_box = FALSE,
@@ -67,6 +67,7 @@ ExpressionStatPlot <- function(
     ylab = "Expression level",
     legend.position = "right",
     legend.direction = "vertical",
+    legend.title = NULL,
     theme_use = "theme_scop",
     theme_args = list(),
     force = FALSE,
@@ -210,7 +211,7 @@ ExpressionStatPlot <- function(
     sort <- FALSE
   }
   if (isTRUE(multiplegroup_comparisons) || length(comparisons) > 0) {
-    check_r("ggpubr")
+    check_r("ggpubr", verbose = FALSE)
     ncomp <- sapply(comparisons, length)
     if (any(ncomp > 2)) {
       log_message(
@@ -551,6 +552,22 @@ ExpressionStatPlot <- function(
       )
       dat <- dat[order(dat[["group.unique"]]), , drop = FALSE]
 
+      if (plot_type == "violin") {
+        group_counts <- table(dat[["group.unique"]])
+        remove_groups <- names(group_counts[group_counts < 2])
+        if (length(remove_groups) > 0) {
+          log_message(
+            "Removed {.val {length(remove_groups)}} group{?s} with < 2 observations for violin plot: {.val {remove_groups}}",
+            message_type = "warning"
+          )
+          dat <- dat[!dat[["group.unique"]] %in% remove_groups, , drop = FALSE]
+          dat[["group.unique"]] <- droplevels(dat[["group.unique"]])
+        }
+        if (nrow(dat) == 0) {
+          return(NULL)
+        }
+      }
+
       values <- dat[, "value"][is.finite(x = dat[, "value"])]
       if (is.null(y.max)) {
         y_max_use <- max(values, na.rm = TRUE)
@@ -803,9 +820,7 @@ ExpressionStatPlot <- function(
 
           y_max_use <- layer_scales(p)$y$range$range[2]
         } else {
-          # When using split.by, comparisons should be based on split.by groups
           if (split.by != "All.groups") {
-            # Filter comparisons to only include groups that exist in the data
             valid_comparisons <- list()
             for (comp in comparisons) {
               if (length(comp) == 2 && all(comp %in% levels(dat[["split.by"]]))) {
@@ -1151,18 +1166,19 @@ ExpressionStatPlot <- function(
         p <- p + scale_y_continuous(trans = y.trans, n.breaks = y.nbreaks)
       }
 
+      legend_title_use <- if (is.null(legend.title)) paste0(keynm, ":") else legend.title
       if (fill.by != "expression") {
         if (isTRUE(stack)) {
           p <- p +
             scale_fill_manual(
-              name = paste0(keynm, ":"),
+              name = legend_title_use,
               values = colors,
               breaks = levels_order,
               limits = levels_order,
               drop = FALSE
             ) +
             scale_color_manual(
-              name = paste0(keynm, ":"),
+              name = legend_title_use,
               values = colors,
               breaks = levels_order,
               limits = levels_order,
@@ -1171,13 +1187,13 @@ ExpressionStatPlot <- function(
         } else {
           p <- p +
             scale_fill_manual(
-              name = paste0(keynm, ":"),
+              name = legend_title_use,
               values = colors,
               breaks = levels_order,
               drop = FALSE
             ) +
             scale_color_manual(
-              name = paste0(keynm, ":"),
+              name = legend_title_use,
               values = colors,
               breaks = levels_order,
               drop = FALSE
@@ -1194,7 +1210,7 @@ ExpressionStatPlot <- function(
       } else {
         p <- p +
           scale_fill_gradientn(
-            name = paste0(keynm, ":"),
+            name = legend_title_use,
             colours = colors,
             limits = colors_limits
           ) +

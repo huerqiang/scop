@@ -6,21 +6,7 @@
 #'
 #' @md
 #' @inheritParams thisutils::log_message
-#' @param srt A Seurat object. Default is `NULL`.
-#' If provided, `adata` will be ignored.
-#' @param adata An anndata object. Default is `NULL`.
-#' @param assay_x Assay to convert in the anndata object.
-#' @param layer_x Layer name for `assay_x` in the Seurat object.
-#' @param assay_y Assay to convert in the anndata object.
-#' @param layer_y Layer names for the `assay_y` in the Seurat object.
-#' @param group_by Variable to use for grouping cells in the Seurat object.
-#' @param linear_reduction Linear reduction method to use, e.g., `"PCA"`.
-#' @param nonlinear_reduction Non-linear reduction method to use, e.g., `"UMAP"`.
-#' @param basis The basis to use for reduction, e.g., `"UMAP"`.
-#' @param n_pcs Number of principal components to use for linear reduction.
-#' Default is `30`.
-#' @param n_neighbors Number of neighbors to use for constructing the KNN graph.
-#' Default is `30`.
+#' @inheritParams RunCellRank
 #' @param use_rna_velocity Whether to use RNA velocity for PAGA analysis.
 #' Default is `FALSE`.
 #' @param vkey The name of the RNA velocity data to use if `use_rna_velocity` is `TRUE`.
@@ -38,19 +24,9 @@
 #' @param n_dcs The number of diffusion components to use for pseudotime inference.
 #' @param n_branchings Number of branchings to detect.
 #' @param min_group_size The minimum size of a group (as a fraction of the total number of cells) to consider it as a potential branching point.
-#' @param palette The palette to use for coloring cells.
-#' @param palcolor A vector of colors to use as the palette.
-#' @param show_plot Whether to show the plot.
-#' Default is `FALSE`.
-#' @param dpi The DPI (dots per inch) for saving the plot.
-#' @param save Whether to save the plots.
-#' @param dirpath The directory to save the plots.
-#' @param fileprefix The file prefix to use for the plots.
-#' @param return_seurat Whether to return a Seurat object instead of an anndata object.
-#' Default is `TRUE`.
 #'
 #' @seealso
-#' [srt_to_adata], [PAGAPlot], [CellDimPlot], [RunSCVELO]
+#' [PAGAPlot], [CellDimPlot], [RunSCVELO]
 #'
 #' @export
 #'
@@ -61,7 +37,7 @@
 #' pancreas_sub <- RunPAGA(
 #'   pancreas_sub,
 #'   assay_x = "RNA",
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   linear_reduction = "PCA",
 #'   nonlinear_reduction = "UMAP"
 #' )
@@ -82,7 +58,7 @@
 #'
 #' pancreas_sub <- RunPAGA(
 #'   pancreas_sub,
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   linear_reduction = "PCA",
 #'   nonlinear_reduction = "UMAP",
 #'   embedded_with_PAGA = TRUE,
@@ -112,7 +88,7 @@ RunPAGA <- function(
     layer_x = "counts",
     assay_y = c("spliced", "unspliced"),
     layer_y = "counts",
-    group_by = NULL,
+    group.by = NULL,
     linear_reduction = NULL,
     nonlinear_reduction = NULL,
     basis = NULL,
@@ -130,25 +106,31 @@ RunPAGA <- function(
     n_dcs = 10,
     n_branchings = 0,
     min_group_size = 0.01,
-    palette = "Paired",
+    palette = "Chinese",
     palcolor = NULL,
+    legend.position = "on data",
+    cores = 1,
     show_plot = FALSE,
-    save = FALSE,
-    dpi = 300,
-    dirpath = "./",
-    fileprefix = "",
+    save_plot = FALSE,
+    plot_format = c("pdf", "png", "svg"),
+    plot_dpi = 300,
+    plot_prefix = "paga",
+    dirpath = "./paga",
     return_seurat = !is.null(srt),
     verbose = TRUE) {
   PrepareEnv()
+
+  plot_format <- match.arg(plot_format)
+
   if (all(is.null(srt), is.null(adata))) {
     log_message(
       "One of {.arg srt} or {.arg adata} must be provided",
       message_type = "error"
     )
   }
-  if (is.null(group_by)) {
+  if (is.null(group.by)) {
     log_message(
-      "{.arg group_by} must be provided",
+      "{.arg group.by} must be provided",
       message_type = "error"
     )
   }
@@ -199,6 +181,13 @@ RunPAGA <- function(
       }
     }
   )
+
+  args[["legend_loc"]] <- legend.position
+  args[["n_jobs"]] <- cores
+  args[["save"]] <- save_plot
+  args[["dpi"]] <- plot_dpi
+  args[["fileprefix"]] <- plot_prefix
+
   params <- c(
     "srt",
     "assay_x",
@@ -207,7 +196,12 @@ RunPAGA <- function(
     "layer_y",
     "return_seurat",
     "palette",
-    "palcolor"
+    "palcolor",
+    "save_plot",
+    "plot_dpi",
+    "plot_prefix",
+    "legend.position",
+    "cores"
   )
   args <- args[!names(args) %in% params]
 
@@ -220,7 +214,11 @@ RunPAGA <- function(
       layer_y = layer_y
     )
   }
-  groups <- py_to_r2(args[["adata"]]$obs)[[group_by]]
+  if ("group.by" %in% names(args)) {
+    args[["group_by"]] <- args[["group.by"]]
+    args[["group.by"]] <- NULL
+  }
+  groups <- py_to_r2(args[["adata"]]$obs)[[group.by]]
   args[["palette"]] <- palette_colors(
     levels(groups) %||% unique(groups),
     palette = palette,

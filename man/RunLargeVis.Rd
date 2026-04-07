@@ -84,24 +84,22 @@ RunLargeVis(object, ...)
 )
 }
 \arguments{
-\item{object}{An object. This can be a Seurat object or a matrix-like object.}
+\item{object}{An object.
+This can be a Seurat object, a matrix-like object, a Neighbor object, or a Graph object.}
 
 \item{...}{Additional arguments to be passed to \link[uwot:lvish]{uwot::lvish}.}
 
-\item{reduction}{The reduction to be used.
-Default is \code{"pca"}.}
+\item{reduction}{Which dimensionality reduction to use. Default is \code{"pca"}.}
 
-\item{dims}{The dimensions to be used.
-Default is \code{NULL}.}
+\item{dims}{The dimensions to be used. Default is \code{NULL}.}
 
-\item{features}{The features to be used.
-Default is \code{NULL}.}
+\item{features}{A character vector of features to use. Default is \code{NULL}.}
 
-\item{assay}{The assay to be used.
-Default is \code{NULL}.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
-\item{layer}{The layer to be used.
-Default is \code{"data"}.}
+\item{layer}{Which layer to use.
+Default is \code{data}.}
 
 \item{perplexity}{Controls the size of the local neighborhood used for
 manifold approximation. This is the analogous to \code{n_neighbors} in
@@ -433,13 +431,14 @@ Default is \code{"LargeVis_"}.}
 
 \item{verbose}{If \code{TRUE}, log details to the console.}
 
-\item{seed.use}{The random seed to be used.
+\item{seed.use}{Random seed for reproducibility.
 Default is \code{11}.}
 }
 \description{
 Run LargeVis (Dimensionality Reduction with a LargeVis-like method)
 }
 \examples{
+\dontrun{
 data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunLargeVis(
@@ -451,4 +450,5 @@ CellDimPlot(
   group.by = "CellType",
   reduction = "largevis"
 )
+}
 }

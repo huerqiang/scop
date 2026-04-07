@@ -2,18 +2,19 @@
 % Please edit documentation in R/DataConvert.R
 \name{adata_to_srt}
 \alias{adata_to_srt}
-\title{Convert an anndata object to a seurat object using reticulate}
+\title{Convert an anndata object to a seurat object}
 \usage{
 adata_to_srt(adata, verbose = TRUE)
 }
 \arguments{
-\item{adata}{A connected python anndata object.}
+\item{adata}{An AnnData object.
+Can be a Python AnnData object (from \code{scanpy}/\verb{reticulate``), an }AnnDataR6\verb{object from the}anndata\verb{package, or an}InMemoryAnnData\verb{object from the}anndataR` package.}
 
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
 }
 \description{
-Convert an anndata object to a seurat object using reticulate
+Convert an anndata object to a seurat object
 }
 \examples{
 \dontrun{
@@ -22,7 +23,7 @@ pancreas_sub <- standard_scop(pancreas_sub)
 adata <- srt_to_adata(pancreas_sub)
 adata <- RunPAGA(
   adata = adata,
-  group_by = "SubCellType",
+  group.by = "SubCellType",
   linear_reduction = "X_pca",
   nonlinear_reduction = "X_umap"
 )
@@ -35,4 +36,7 @@ adata <- sc$read_h5ad("pancreas.h5ad")
 srt <- adata_to_srt(adata)
 srt
 }
+}
+\seealso{
+\link{srt_to_adata}
 }

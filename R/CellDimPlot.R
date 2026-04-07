@@ -5,32 +5,46 @@
 #' Plotting cell points on a reduced 2D plane and coloring according to the groups.
 #'
 #' @md
-#' @param srt A Seurat object.
-#' @param group.by Name of one or more meta.data columns to group (color) cells by (for example, orig.ident).
+#' @inheritParams standard_scop
+#' @param group.by Name of one or more meta.data columns to group (color) cells by.
 #' @param reduction Which dimensionality reduction to use.
 #' If not specified, will use the reduction returned by [DefaultReduction].
 #' @param split.by Name of a column in meta.data column to split plot by.
-#' @param palette Name of a color palette name collected in scop.
-#' Default is `"Paired"`.
+#' Default is `NULL`.
+#' @param palette Color palette name.
+#' Available palettes can be found in [thisplot::show_palettes].
+#' Default is `"Chinese"`.
 #' @param palcolor Custom colors used to create a color palette.
+#' Default is `NULL`.
 #' @param bg_color Color value for background(NA) points.
-#' @param pt.size Point size.
-#' @param pt.alpha Point transparency.
-#' @param cells.highlight A vector of cell names to highlight.
+#' @param pt.size The size of the points in the plot.
+#' @param pt.alpha The transparency of the data points.
+#' Default is `1`.
+#' @param cells.highlight A logical or character vector specifying the cells to highlight in the plot.
+#' If `TRUE`, all cells are highlighted. If `FALSE`, no cells are highlighted.
+#' Default is `NULL`.
 #' @param cols.highlight Color used to highlight the cells.
 #' @param sizes.highlight Size of highlighted cell points.
 #' @param alpha.highlight Transparency of highlighted cell points.
 #' @param stroke.highlight Border width of highlighted cell points.
-#' @param legend.position The position of legends ("none", "left", "right", "bottom", "top").
-#' @param legend.direction Layout of items in legends ("horizontal" or "vertical")
+#' @param legend.position The position of legends,
+#' one of `"none"`, `"left"`, `"right"`, `"bottom"`, `"top"`.
+#' Default is `"right"`.
+#' @param legend.direction The direction of the legend in the plot.
+#' Can be one of `"vertical"` or `"horizontal"`.
+#' @param legend.title Title for the legend. Default is `NULL`, which uses the group name.
 #' @param combine Combine plots into a single `patchwork` object.
 #' If `FALSE`, return a list of ggplot objects.
 #' @param nrow Number of rows in the combined plot.
+#' Default is `NULL`, which means determined automatically based on the number of plots.
 #' @param ncol Number of columns in the combined plot.
-#' @param byrow Logical value indicating if the plots should be arrange by row (default) or by column.
+#' Default is `NULL`, which means determined automatically based on the number of plots.
+#' @param byrow Whether to arrange the plots by row in the combined plot.
+#' Default is `TRUE`.
 #' @param dims Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions
 #' @param show_na Whether to assign a color from the color palette to NA group.
-#' If `FALSE`, cell points with NA level will colored by `bg_color`.
+#' If `TRUE`, cell points with NA level will be colored by `bg_color`.
+#' If `FALSE`, cell points with NA level will be removed from the plot.
 #' @param show_stat Whether to show statistical information on the plot.
 #' @param label Whether to label the cell groups.
 #' @param label_insitu Whether to place the raw labels (group names) in the center of the cells with the corresponding group.
@@ -40,7 +54,7 @@
 #' @param label.bg Background color of label.
 #' @param label.bg.r Background ratio of label.
 #' @param label_repel Logical value indicating whether the label is repel away from the center points.
-#' @param label_repulsion Force of repulsion between overlapping text labels. Defaults to 20.
+#' @param label_repulsion Force of repulsion between overlapping text labels. Default is `20`.
 #' @param label_point_size Size of the center points.
 #' @param label_point_color Color of the center points.
 #' @param label_segment_color Color of the line segment for labels.
@@ -51,13 +65,13 @@
 #' @param density_filled_palcolor Custom colors used to fill contour bands.
 #' @param add_mark Whether to add marks around cell groups. Default is `FALSE`.
 #' @param mark_type Type of mark to add around cell groups.
-#' One of "hull", "ellipse", "rect", or "circle". Default is "hull".
+#' One of "hull", "ellipse", "rect", or "circle". Default is `"hull"`.
 #' @param mark_expand Expansion of the mark around the cell group.
 #' Default is `grid::unit(3, "mm")`.
 #' @param mark_alpha Transparency of the mark.
-#' Default is 0.1.
+#' Default is `0.1`.
 #' @param mark_linetype Line type of the mark border.
-#' Default is 1 (solid line).
+#' Default is `1` (solid line).
 #' @param lineages Lineages/pseudotime to add to the plot.
 #' If specified, curves will be fitted using [stats::loess] method.
 #' @param lineages_trim Trim the leading and the trailing data in the lineages.
@@ -74,7 +88,7 @@
 #' @param stat.by The name of a metadata column to stat.
 #' @param stat_type Set stat types ("percent" or "count").
 #' @param stat_plot_type Set the statistical plot type.
-#' @param stat_plot_size Set the statistical plot size. Defaults to 0.1
+#' @param stat_plot_size Set the statistical plot size. Default is `0.2`.
 #' @param stat_plot_palette Color palette used in statistical plot.
 #' @param stat_palcolor Custom colors used in statistical plot
 #' @param stat_plot_position Position adjustment in statistical plot.
@@ -123,22 +137,29 @@
 #' @param hex.bins Number of hexagonal bins.
 #' @param hex.binwidth Hexagonal bin width.
 #' @param hex.linewidth Border width of hexagonal bins.
-#' @param raster Convert points to raster format, default is NULL which automatically rasterizes if plotting more than 100,000 cells
-#' @param raster.dpi Pixel resolution for rasterized plots, passed to geom_scattermore().
-#' Default is c(512, 512).
+#' @param raster Convert points to raster format.
+#' Default is `NULL`, which automatically rasterizes if plotting more than 100,000 cells.
+#' @param raster.dpi Pixel resolution for rasterized plots.
+#' Default is `c(512, 512)`.
 #' @param theme_use Theme used. Can be a character string or a theme function.
-#' For example, `"theme_blank"` or [ggplot2::theme_classic].
-#' @param aspect.ratio Aspect ratio of the panel.
+#' Default is `"theme_scop"`.
+#' @param aspect.ratio Aspect ratio of the panel. Default is `1`.
 #' @param title The text for the title.
+#' Default is `NULL`.
 #' @param subtitle The text for the subtitle for the plot which will be displayed below the title.
-#' @param xlab x-axis label.
-#' @param ylab y-axis label.
+#' Default is `NULL`.
+#' @param xlab The x-axis label of the plot.
+#' Default is `NULL`.
+#' @param ylab The y-axis label of the plot.
+#' Default is `NULL`.
 #' @param force Whether to force drawing regardless of maximum levels in any cell group is greater than 100.
-#' @param cells Subset cells to plot.
+#' Default is `FALSE`.
+#' @param cells A character vector of cell names to use.
 #' @param theme_args Other arguments passed to the `theme_use`.
-#' @param seed Random seed set for reproducibility
+#' Default is `list()`.
 #'
-#' @seealso [FeatureDimPlot]
+#' @seealso
+#' [CellDimPlot3D], [FeatureDimPlot], [FeatureDimPlot3D]
 #'
 #' @export
 #'
@@ -156,7 +177,7 @@
 #'   p1,
 #'   height = 2,
 #'   raster = TRUE,
-#'   dpi = 30
+#'   dpi = 300
 #' )
 #'
 #' CellDimPlot(
@@ -365,7 +386,6 @@
 #' )
 #'
 #' # Show neighbors graphs on the plot
-#' pancreas_sub <- standard_scop(pancreas_sub)
 #' CellDimPlot(
 #'   pancreas_sub,
 #'   group.by = "CellType",
@@ -420,11 +440,9 @@
 #'
 #' \dontrun{
 #' # Show PAGA results on the plot
-#' data(pancreas_sub)
-#' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunPAGA(
 #'   pancreas_sub,
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   linear_reduction = "PCA",
 #'   nonlinear_reduction = "UMAP",
 #'   return_seurat = TRUE
@@ -464,11 +482,9 @@
 #' )
 #'
 #' # Show RNA velocity results on the plot
-#' data(pancreas_sub)
-#' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunSCVELO(
 #'   pancreas_sub,
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   linear_reduction = "PCA",
 #'   nonlinear_reduction = "UMAP",
 #'   mode = "stochastic",
@@ -552,7 +568,7 @@ CellDimPlot <- function(
     show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
     pt.size = NULL,
     pt.alpha = 1,
-    palette = "Paired",
+    palette = "Chinese",
     palcolor = NULL,
     bg_color = "grey80",
     label = FALSE,
@@ -597,7 +613,7 @@ CellDimPlot <- function(
     stat_type = "percent",
     stat_plot_type = "pie",
     stat_plot_position = c("stack", "dodge"),
-    stat_plot_size = 0.15,
+    stat_plot_size = 0.2,
     stat_plot_palette = "Set1",
     stat_palcolor = NULL,
     stat_plot_alpha = 1,
@@ -654,6 +670,7 @@ CellDimPlot <- function(
     ylab = NULL,
     legend.position = "right",
     legend.direction = "vertical",
+    legend.title = NULL,
     theme_use = "theme_scop",
     theme_args = list(),
     combine = TRUE,
@@ -665,6 +682,7 @@ CellDimPlot <- function(
   set.seed(seed)
   mark_type <- match.arg(mark_type)
 
+  check_r("ggnewscale", verbose = FALSE)
   if (is.null(split.by)) {
     split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
@@ -672,7 +690,7 @@ CellDimPlot <- function(
   for (i in unique(c(group.by, split.by))) {
     if (!i %in% colnames(srt@meta.data)) {
       log_message(
-        paste0(i, " is not in the meta.data of srt object."),
+        "{.val {i}} is not in the meta.data of srt object",
         message_type = "error"
       )
     }
@@ -692,14 +710,14 @@ CellDimPlot <- function(
   for (l in lineages) {
     if (!l %in% colnames(srt@meta.data)) {
       log_message(
-        paste0(l, " is not in the meta.data of srt object."),
+        "Lineage {.val {l}} is not in the meta.data of srt object",
         message_type = "error"
       )
     }
   }
   if (!is.null(graph) && !graph %in% names(srt@graphs)) {
     log_message(
-      paste0("Graph ", graph, " is not exist in the srt object."),
+      "Graph {.val {graph}} is not exist in the srt object",
       message_type = "error"
     )
   }
@@ -713,20 +731,20 @@ CellDimPlot <- function(
   }
   if (!reduction %in% names(srt@reductions)) {
     log_message(
-      paste0(reduction, " is not in the srt reduction names."),
+      "{.val {reduction}} is not in the srt reduction names",
       message_type = "error"
     )
   }
   if (!is.null(cells.highlight) && isFALSE(cells.highlight)) {
     if (!any(cells.highlight %in% colnames(srt@assays[[1]]))) {
       log_message(
-        "No cells in 'cells.highlight' found in srt.",
+        "No cells in '{.arg cells.highlight}' found in srt",
         message_type = "error"
       )
     }
     if (!all(cells.highlight %in% colnames(srt@assays[[1]]))) {
       log_message(
-        "Some cells in 'cells.highlight' not found in srt.",
+        "Some cells in '{.arg cells.highlight}' not found in srt",
         message_type = "warning"
       )
     }
@@ -738,10 +756,7 @@ CellDimPlot <- function(
   nlev <- nlev[nlev > 100]
   if (length(nlev) > 0 && isFALSE(force)) {
     log_message(
-      paste0(
-        "The following variables have more than 100 levels: ",
-        paste(names(nlev), collapse = ",")
-      ),
+      "The following variables have more than 100 levels: {.val {names(nlev)}}",
       message_type = "warning"
     )
     answer <- utils::askYesNo("Are you sure to continue?", default = FALSE)
@@ -763,12 +778,12 @@ CellDimPlot <- function(
   }
   raster <- raster %||% (nrow(dat_use) > 1e5)
   if (isTRUE(raster)) {
-    check_r("scattermore")
+    check_r("scattermore", verbose = FALSE)
   }
-  if (!is.null(x = raster.dpi)) {
-    if (!is.numeric(x = raster.dpi) || length(x = raster.dpi) != 2) {
+  if (!is.null(raster.dpi)) {
+    if (!is.numeric(x = raster.dpi) || length(raster.dpi) != 2) {
       log_message(
-        "'raster.dpi' must be a two-length numeric vector",
+        "'{.arg raster.dpi}' must be a two-length numeric vector",
         message_type = "error"
       )
     }
@@ -887,7 +902,7 @@ CellDimPlot <- function(
       dims = dims,
       velocity = velocity,
       plot_type = velocity_plot_type,
-      group_by = group.by,
+      group.by = group.by,
       group_palette = palette,
       group_palcolor = palcolor,
       n_neighbors = velocity_n_neighbors,
@@ -953,12 +968,15 @@ CellDimPlot <- function(
       dat <- dat_use
       cells_mask <- dat[[split.by]] != s
       dat[[g]][cells_mask] <- NA
+      if (isFALSE(show_na)) {
+        dat <- dat[!is.na(dat[[g]]), , drop = FALSE]
+      }
       legend_list <- list()
       labels_tb <- table(dat[[g]])
       labels_tb <- labels_tb[labels_tb != 0]
-      cells.highlight_use <- cells.highlight
-      if (isTRUE(cells.highlight_use)) {
-        cells.highlight_use <- rownames(dat)[!is.na(dat[[g]])]
+      cells_highlight_use <- cells.highlight
+      if (isTRUE(cells_highlight_use)) {
+        cells_highlight_use <- rownames(dat)[!is.na(dat[[g]])]
       }
 
       if (isTRUE(label_insitu)) {
@@ -1012,7 +1030,8 @@ CellDimPlot <- function(
       }
 
       if (isTRUE(add_mark)) {
-        mark_fun <- switch(mark_type,
+        mark_fun <- switch(
+          EXPR = mark_type,
           "ellipse" = "geom_mark_ellipse",
           "hull" = "geom_mark_hull",
           "rect" = "geom_mark_rect",
@@ -1156,7 +1175,7 @@ CellDimPlot <- function(
             pixels = raster.dpi
           )
       } else if (isTRUE(hex)) {
-        check_r("hexbin")
+        check_r("hexbin", verbose = FALSE)
         if (isTRUE(hex.count)) {
           p <- p +
             geom_hex(
@@ -1198,8 +1217,8 @@ CellDimPlot <- function(
           )
       }
 
-      if (!is.null(cells.highlight_use) && isFALSE(hex)) {
-        cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight_use)
+      if (!is.null(cells_highlight_use) && isFALSE(hex)) {
+        cell_df <- subset(p$data, rownames(p$data) %in% cells_highlight_use)
         if (nrow(cell_df) > 0) {
           if (isTRUE(raster)) {
             p <- p +
@@ -1244,9 +1263,10 @@ CellDimPlot <- function(
           }
         }
       }
+      legend_title_use <- if (is.null(legend.title)) paste0(g, ":") else legend.title
       p <- p +
         scale_color_manual(
-          name = paste0(g, ":"),
+          name = legend_title_use,
           values = colors[names(labels_tb)],
           labels = label_use,
           na.value = bg_color,
@@ -1255,17 +1275,20 @@ CellDimPlot <- function(
             order = 1,
             override.aes = list(size = 4, alpha = 1)
           )
-        ) +
-        scale_fill_manual(
-          name = paste0(g, ":"),
-          values = colors[names(labels_tb)],
-          labels = label_use,
-          na.value = bg_color,
-          guide = guide_legend(
-            title.hjust = 0,
-            order = 1
-          )
         )
+      if (isTRUE(hex)) {
+        p <- p +
+          scale_fill_manual(
+            name = legend_title_use,
+            values = colors[names(labels_tb)],
+            labels = label_use,
+            na.value = bg_color,
+            guide = guide_legend(
+              title.hjust = 0,
+              order = 1
+            )
+          )
+      }
       p_base <- p
 
       if (!is.null(stat.by)) {
@@ -1349,7 +1372,7 @@ CellDimPlot <- function(
           list(ggnewscale::new_scale("size")),
           velocity_layers
         )
-        if (velocity_plot_type != "raw") {
+        if (velocity_plot_type == "stream" && is.null(streamline_color)) {
           suppressMessages({
             legend_list[["velocity"]] <- get_legend(
               ggplot() +
@@ -1515,7 +1538,7 @@ CellDimPlot3D <- function(
     reduction = NULL,
     dims = c(1, 2, 3),
     axis_labs = NULL,
-    palette = "Paired",
+    palette = "Chinese",
     palcolor = NULL,
     bg_color = "grey80",
     pt.size = 1.5,
@@ -1598,7 +1621,7 @@ CellDimPlot3D <- function(
     zlab <- axis_labs[3]
   }
   if ((!is.null(save) && is.character(save) && nchar(save) > 0)) {
-    check_r("htmlwidgets")
+    check_r("htmlwidgets", verbose = FALSE)
     if (!grepl(".html$", save)) {
       log_message(
         "'save' must be a string with .html as a suffix.",
@@ -1664,15 +1687,15 @@ CellDimPlot3D <- function(
     reduction_key,
     dims[3]
   )]]
-  cells.highlight_use <- cells.highlight
-  if (isTRUE(cells.highlight_use)) {
-    cells.highlight_use <- rownames(dat_use)[dat_use[[group.by]] != "NA"]
+  cells_highlight_use <- cells.highlight
+  if (isTRUE(cells_highlight_use)) {
+    cells_highlight_use <- rownames(dat_use)[dat_use[[group.by]] != "NA"]
   }
-  if (!is.null(cells.highlight_use)) {
-    cells.highlight_use <- cells.highlight_use[
-      cells.highlight_use %in% rownames(dat_use)
+  if (!is.null(cells_highlight_use)) {
+    cells_highlight_use <- cells_highlight_use[
+      cells_highlight_use %in% rownames(dat_use)
     ]
-    dat_use_highlight <- dat_use[cells.highlight_use, , drop = FALSE]
+    dat_use_highlight <- dat_use[cells_highlight_use, , drop = FALSE]
   }
 
   p <- plotly::plot_ly(data = dat_use, width = width, height = height)
@@ -1698,7 +1721,7 @@ CellDimPlot3D <- function(
     showlegend = TRUE,
     visible = TRUE
   )
-  if (!is.null(cells.highlight_use)) {
+  if (!is.null(cells_highlight_use)) {
     p <- plotly::add_trace(
       p = p,
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],

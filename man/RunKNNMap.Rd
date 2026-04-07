@@ -25,25 +25,30 @@ RunKNNMap(
 )
 }
 \arguments{
-\item{srt_query}{A Seurat object storing the query cells.}
+\item{srt_query}{An object of class Seurat to be annotated with cell types.}
 
-\item{srt_ref}{A Seurat object storing the reference cells.}
+\item{srt_ref}{A Seurat object or count matrix representing the reference object.
+If provided, the similarities will be calculated between cells from the query and reference objects.
+If not provided, the similarities will be calculated within the query object.}
 
-\item{query_assay}{A character string specifying the assay name for the query cells.
-If not provided, the default assay for the query object will be used.}
+\item{query_assay}{The assay to use for the query object.
+If not provided, the default assay of the query object will be used.}
 
-\item{ref_assay}{A character string specifying the assay name for the reference cells.
-If not provided, the default assay for the reference object will be used.}
+\item{ref_assay}{The assay to use for the reference object.
+If not provided, the default assay of the reference object will be used.}
 
 \item{ref_umap}{A character string specifying the name of the UMAP reduction in the reference object.
 If not provided, the first UMAP reduction found in the reference object will be used.}
 
-\item{ref_group}{A character string specifying a metadata column name in the reference object to use for grouping.}
+\item{ref_group}{The grouping variable in the reference object.
+This variable will be used to group cells in the heatmap columns.
+If not provided, all cells will be treated as one group.}
 
-\item{features}{A character vector specifying the features to be used for calculating the distance metric.
-If not provided, the function will use the variable features calculated by the Seurat package.}
+\item{features}{A vector of feature names to include in the heatmap.
+If not provided, highly variable features (HVF) will be used.}
 
-\item{nfeatures}{A integer specifying the number of highly variable features to be calculated if \code{features} is not provided.}
+\item{nfeatures}{The maximum number of features to include in the heatmap.
+Default is \code{2000}.}
 
 \item{query_reduction}{A character string specifying the name of a dimensionality reduction in the query object to use for calculating the distance metric.}
 
@@ -66,9 +71,10 @@ If not provided, the function will choose the search method based on the size of
 
 \item{k}{A number of nearest neighbors to find for each cell in the query object.}
 
-\item{distance_metric}{A character string specifying the distance metric to use for calculating the pairwise distances between cells.
-Options include: "pearson", "spearman", "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman", "simple matching",
-and "faith". Additional distance metrics can also be used, such as "euclidean", "manhattan", "hamming", etc.}
+\item{distance_metric}{The distance metric to use for calculating the pairwise distances between cells.
+Options include: "pearson", "spearman", "cosine", "correlation", "jaccard", "ejaccard",
+"dice", "edice", "hamman", "simple matching", and "faith".
+Additional distance metrics can also be used, such as "euclidean", "manhattan", "hamming", etc.}
 
 \item{vote_fun}{A character string specifying the function to be used for aggregating the nearest neighbors in the reference object.
 Options are "mean", "median", "sum", "min", "max", "sd", "var", etc.
@@ -115,4 +121,7 @@ ProjectionPlot(
   query_group = "celltype",
   ref_group = "celltype"
 )
+}
+\seealso{
+\link{RunKNNPredict}, \link{RunSingleR}, \link{CellCorHeatmap}
 }

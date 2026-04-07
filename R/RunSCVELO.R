@@ -6,17 +6,8 @@
 #' version compatibility, and modular design.
 #'
 #' @md
-#' @inheritParams RunPAGA
 #' @inheritParams thisutils::log_message
-#' @param mode Velocity estimation models to use.
-#' Can be a vector containing `"deterministic"`, `"stochastic"`, and/or `"dynamical"`.
-#' @param fitting_by Method used to fit gene velocities for dynamical modeling, e.g., "stochastic".
-#' @param magic_impute Flag indicating whether to perform magic imputation.
-#' @param knn The number of nearest neighbors for `magic.MAGIC`.
-#' @param t power to which the diffusion operator is powered for `magic.MAGIC`.
-#' @param min_shared_counts Minimum number of counts (both unspliced and spliced) required for a gene.
-#' @param n_pcs Number of principal components (PCs) used for velocity estimation.
-#' @param n_neighbors Number of nearest neighbors used for velocity estimation.
+#' @inheritParams RunCellRank
 #' @param filter_genes Whether to filter genes based on minimum counts.
 #' @param min_counts Minimum counts for gene filtering.
 #' @param min_counts_u Minimum unspliced counts for gene filtering.
@@ -24,28 +15,16 @@
 #' @param log_transform Whether to apply log transformation.
 #' @param use_raw Whether to use raw data for dynamical modeling.
 #' @param diff_kinetics Whether to use differential kinetics.
-#' @param stream_smooth Multiplication factor for scale in Gaussian kernel around grid point.
-#' @param stream_density Controls the closeness of streamlines.
-#' When density = 2 (default), the domain is divided into a 60x60 grid,
-#' whereas density linearly scales this grid.
-#' Each cell in the grid can have, at most, one traversing streamline.
-#' @param arrow_length Length of arrows.
-#' @param arrow_size Size of arrows.
-#' @param arrow_density Amount of velocities to show.
-#' @param denoise Boolean flag indicating whether to denoise.
 #' @param denoise_topn Number of genes with highest likelihood selected to infer velocity directions.
-#' @param kinetics Boolean flag indicating whether to estimate RNA kinetics.
 #' @param kinetics_topn Number of genes with highest likelihood selected to infer velocity directions.
-#' @param calculate_velocity_genes Boolean flag indicating whether to calculate velocity genes.
 #' @param compute_velocity_confidence Whether to compute velocity confidence metrics.
 #' @param compute_terminal_states Whether to compute terminal states (root and end points).
 #' @param compute_pseudotime Whether to compute velocity pseudotime.
 #' @param compute_paga Whether to compute PAGA (Partition-based graph abstraction).
 #' @param top_n The number of top features to plot.
-#' @param n_jobs The number of parallel jobs to run.
 #'
 #' @seealso
-#' [srt_to_adata], [VelocityPlot], [CellDimPlot], [RunPAGA]
+#' [VelocityPlot], [CellDimPlot], [RunPAGA]
 #'
 #' @export
 #' @examples
@@ -55,7 +34,7 @@
 #' pancreas_sub <- RunSCVELO(
 #'   pancreas_sub,
 #'   assay_x = "RNA",
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   linear_reduction = "PCA",
 #'   nonlinear_reduction = "UMAP"
 #' )
@@ -82,23 +61,6 @@
 #'   pt.size = NA,
 #'   velocity = "stochastic"
 #' )
-#'
-#' data(pancreas_sub)
-#' pancreas_sub <- standard_scop(pancreas_sub)
-#' pancreas_sub <- RunSCVELO(
-#'   pancreas_sub,
-#'   assay_x = "RNA",
-#'   group_by = "SubCellType",
-#'   linear_reduction = "PCA",
-#'   nonlinear_reduction = "UMAP",
-#'   mode = c("deterministic", "stochastic"),
-#'   filter_genes = TRUE,
-#'   min_counts = 5,
-#'   compute_velocity_confidence = TRUE,
-#'   compute_terminal_states = TRUE,
-#'   compute_pseudotime = TRUE,
-#'   compute_paga = TRUE
-#' )
 #' }
 RunSCVELO <- function(
     srt = NULL,
@@ -107,7 +69,7 @@ RunSCVELO <- function(
     layer_x = "counts",
     assay_y = c("spliced", "unspliced"),
     layer_y = "counts",
-    group_by = NULL,
+    group.by = NULL,
     linear_reduction = NULL,
     nonlinear_reduction = NULL,
     basis = NULL,
@@ -141,14 +103,16 @@ RunSCVELO <- function(
     compute_pseudotime = TRUE,
     compute_paga = TRUE,
     top_n = 6,
-    n_jobs = 1,
-    palette = "Paired",
+    cores = 1,
+    palette = "Chinese",
     palcolor = NULL,
+    legend.position = "on data",
     show_plot = TRUE,
-    save = FALSE,
-    dpi = 300,
-    dirpath = "./",
-    fileprefix = "",
+    save_plot = FALSE,
+    plot_format = c("pdf", "png", "svg"),
+    plot_dpi = 300,
+    plot_prefix = "scvelo",
+    dirpath = "./scvelo",
     return_seurat = !is.null(srt),
     verbose = TRUE) {
   PrepareEnv()
@@ -157,15 +121,17 @@ RunSCVELO <- function(
     check_python("magic-impute", verbose = verbose)
   }
 
+  plot_format <- match.arg(plot_format)
+
   if (all(is.null(srt), is.null(adata))) {
     log_message(
       "One of {.arg srt} or {.arg adata} must be provided",
       message_type = "error"
     )
   }
-  if (is.null(group_by)) {
+  if (is.null(group.by)) {
     log_message(
-      "{.arg group_by} must be provided",
+      "{.arg group.by} must be provided",
       message_type = "error"
     )
   }
@@ -219,19 +185,28 @@ RunSCVELO <- function(
     }
   })
 
-  args <- args[
-    !names(args) %in%
-      c(
-        "srt",
-        "assay_x",
-        "layer_x",
-        "assay_y",
-        "layer_y",
-        "return_seurat",
-        "palette",
-        "palcolor"
-      )
-  ]
+  args[["n_jobs"]] <- cores
+
+  args[["legend_loc"]] <- legend.position
+
+  args[["dpi"]] <- plot_dpi
+  args[["fileprefix"]] <- plot_prefix
+
+  params <- c(
+    "srt",
+    "assay_x",
+    "layer_x",
+    "assay_y",
+    "layer_y",
+    "return_seurat",
+    "palette",
+    "palcolor",
+    "cores",
+    "legend.position",
+    "plot_dpi",
+    "plot_prefix"
+  )
+  args <- args[!names(args) %in% params]
 
   if (!is.null(srt)) {
     args[["adata"]] <- srt_to_adata(
@@ -243,7 +218,11 @@ RunSCVELO <- function(
     )
   }
 
-  groups <- py_to_r2(args[["adata"]]$obs)[[group_by]]
+  if ("group.by" %in% names(args)) {
+    args[["group_by"]] <- args[["group.by"]]
+    args[["group.by"]] <- NULL
+  }
+  groups <- py_to_r2(args[["adata"]]$obs)[[group.by]]
   args[["palette"]] <- palette_colors(
     levels(groups) %||% unique(groups),
     palette = palette,

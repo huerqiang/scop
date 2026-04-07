@@ -8,7 +8,7 @@
 #' @param srt A Seurat object.
 #' @param prefix A prefix to add to the names of intermediate objects created by the function.
 #' Default is `"Standard"`.
-#' @param assay The name of the assay to use for the analysis.
+#' @param assay Which assay to use.
 #' If `NULL`, the default assay of the Seurat object will be used.
 #' @param do_normalization Whether to perform normalization.
 #' If `NULL`, normalization will be performed if the specified assay does not have scaled data.
@@ -22,6 +22,7 @@
 #' Default is `"vst"`.
 #' @param nHVF The number of highly variable features to select.
 #' If NULL, all highly variable features will be used.
+#' Default is `2000`.
 #' @param HVF A vector of feature names to use as highly variable features.
 #' If NULL, the function will use the highly variable features identified by the HVF method.
 #' @param do_scaling Whether to perform scaling.
@@ -38,7 +39,8 @@
 #' The number of dimensions to keep after linear dimensionality reduction.
 #' Default is `50`.
 #' @param linear_reduction_dims_use The dimensions to use for downstream analysis.
-#' If `NULL`, all dimensions will be used.
+#' If `NULL`, estimated dimensions stored in the linear reduction will be used when available;
+#' otherwise, the first up to `50` dimensions will be used as a fallback.
 #' @param linear_reduction_params A list of parameters to pass to the linear dimensionality reduction method.
 #' @param force_linear_reduction Whether to force linear dimensionality reduction even if the specified reduction is already present in the Seurat object.
 #' @param nonlinear_reduction The nonlinear dimensionality reduction method to use.
@@ -62,17 +64,14 @@
 #' @param cluster_resolution The resolution parameter to use for clustering.
 #' Larger values result in fewer clusters.
 #' Default is `0.6`.
-#' @param seed The random seed to use for reproducibility.
+#' @param seed Random seed for reproducibility.
 #' Default is `11`.
 #'
 #' @return A `Seurat` object.
 #'
-#' @seealso [integration_scop]
-#'
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' library(Matrix)
 #' data(pancreas_sub)
 #' pancreas_sub <- standard_scop(pancreas_sub)
@@ -82,9 +81,9 @@
 #' )
 #'
 #' # Use a combination of different linear
-#' # or non-linear dimension reduction methods
+#' # or nonlinear dimension reduction methods
 #' linear_reductions <- c(
-#'   "pca", "nmf", "mds", "glmpca"
+#'   "pca", "nmf", "mds"
 #' )
 #' pancreas_sub <- standard_scop(
 #'   pancreas_sub,
@@ -99,17 +98,17 @@
 #'       reduction = paste0(
 #'         "Standard", lr, "UMAP2D"
 #'       ),
-#'       xlab = "", ylab = "", title = lr,
+#'       xlab = "", ylab = "",
+#'       title = paste0(lr, "_umap"),
 #'       legend.position = "none",
 #'       theme_use = "theme_blank"
 #'     )
 #'   }
 #' )
-#' patchwork::wrap_plots(plotlist = plist1)
+#' patchwork::wrap_plots(plist1)
 #'
 #' nonlinear_reductions <- c(
-#'   "umap", "tsne", "dm", "phate",
-#'   "pacmap", "trimap", "largevis", "fr"
+#'   "umap", "tsne", "fr"
 #' )
 #' pancreas_sub <- standard_scop(
 #'   pancreas_sub,
@@ -122,74 +121,93 @@
 #'       pancreas_sub,
 #'       group.by = "SubCellType",
 #'       reduction = paste0(
-#'         "Standardpca", toupper(nr), "2D"
+#'         "Standardpca", nr, "2D"
 #'       ),
-#'       xlab = "", ylab = "", title = nr,
+#'       xlab = "", ylab = "",
+#'       title = paste0("pca_", nr),
 #'       legend.position = "none",
 #'       theme_use = "theme_blank"
 #'     )
 #'   }
 #' )
-#' patchwork::wrap_plots(plotlist = plist2)
-#' }
+#' patchwork::wrap_plots(plist2)
 standard_scop <- function(
-    srt,
-    prefix = "Standard",
-    assay = NULL,
-    do_normalization = NULL,
-    normalization_method = "LogNormalize",
-    do_HVF_finding = TRUE,
-    HVF_method = "vst",
-    nHVF = 2000,
-    HVF = NULL,
-    do_scaling = TRUE,
-    vars_to_regress = NULL,
-    regression_model = "linear",
-    linear_reduction = "pca",
-    linear_reduction_dims = 50,
-    linear_reduction_dims_use = NULL,
-    linear_reduction_params = list(),
-    force_linear_reduction = FALSE,
-    nonlinear_reduction = "umap",
-    nonlinear_reduction_dims = c(2, 3),
-    nonlinear_reduction_params = list(),
-    force_nonlinear_reduction = TRUE,
-    neighbor_metric = "euclidean",
-    neighbor_k = 20L,
-    cluster_algorithm = "louvain",
-    cluster_resolution = 0.6,
-    verbose = TRUE,
-    seed = 11) {
+  srt,
+  prefix = "Standard",
+  assay = NULL,
+  do_normalization = NULL,
+  normalization_method = "LogNormalize",
+  do_HVF_finding = TRUE,
+  HVF_method = "vst",
+  nHVF = 2000,
+  HVF = NULL,
+  do_scaling = TRUE,
+  vars_to_regress = NULL,
+  regression_model = "linear",
+  linear_reduction = "pca",
+  linear_reduction_dims = 50,
+  linear_reduction_dims_use = NULL,
+  linear_reduction_params = list(),
+  force_linear_reduction = FALSE,
+  nonlinear_reduction = "umap",
+  nonlinear_reduction_dims = c(2, 3),
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  cluster_algorithm = "louvain",
+  cluster_resolution = 0.6,
+  verbose = TRUE,
+  seed = 11
+) {
   log_message(
-    "Start standard scop workflow...",
+    "Start standard processing workflow...",
+    text_color = "blue",
     verbose = verbose
   )
 
   if (!inherits(srt, "Seurat")) {
     log_message(
-      "{.arg srt} is not a {.cls Seurat} object",
+      "{.arg srt} is not a {.cls Seurat}",
       message_type = "error"
     )
   }
 
   assay <- assay %||% SeuratObject::DefaultAssay(srt)
   linear_reductions <- c(
-    "pca", "svd", "ica",
-    "nmf", "mds", "glmpca"
+    "pca",
+    "svd",
+    "ica",
+    "nmf",
+    "mds",
+    "glmpca"
   )
-  if (any(!linear_reduction %in% c(linear_reductions, SeuratObject::Reductions(srt)))) {
+  if (
+    any(
+      !linear_reduction %in% c(linear_reductions, SeuratObject::Reductions(srt))
+    )
+  ) {
     log_message(
       "{.arg linear_reduction} must be one of: {.val {linear_reductions}}",
       message_type = "error"
     )
   }
-  if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
+  if (
+    !is.null(linear_reduction_dims_use) &&
+      max(linear_reduction_dims_use) > linear_reduction_dims
+  ) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
   nonlinear_reductions <- c(
-    "umap", "umap-naive", "tsne",
-    "dm", "phate", "pacmap",
-    "trimap", "largevis", "fr"
+    "umap",
+    "umap-naive",
+    "tsne",
+    "dm",
+    "phate",
+    "pacmap",
+    "trimap",
+    "largevis",
+    "fr"
   )
   if (any(!nonlinear_reduction %in% nonlinear_reductions)) {
     log_message(
@@ -253,7 +271,9 @@ standard_scop <- function(
     assay = assay
   ) |>
     rownames()
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% scale_features))) {
+  if (
+    isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% scale_features))
+  ) {
     if (normalization_method != "SCT") {
       log_message(
         "Perform {.fn Seurat::ScaleData}",
@@ -277,7 +297,7 @@ standard_scop <- function(
       "Perform {.pkg {lr}} linear dimension reduction",
       verbose = verbose
     )
-    srt <- RunDimReduction(
+    srt <- RunDimsReduction(
       srt,
       prefix = prefix,
       features = HVF,
@@ -291,17 +311,14 @@ standard_scop <- function(
     )
 
     if (is.null(linear_reduction_dims_use)) {
-      linear_reduction_dims_use_current <- 1:ncol(
-        srt@reductions[[paste0(
-          prefix,
-          lr
-        )]]@cell.embeddings
+      linear_reduction_dims_use_current <- RunDimsEstimate(
+        srt = srt,
+        reduction = paste0(prefix, lr),
+        reduction_method = lr,
+        skip_first = normalization_method == "TFIDF",
+        use_stored = TRUE,
+        verbose = verbose
       )
-      if (normalization_method == "TFIDF") {
-        linear_reduction_dims_use_current <- 2:max(
-          linear_reduction_dims_use_current
-        )
-      }
     } else {
       linear_reduction_dims_use_current <- linear_reduction_dims_use
     }
@@ -341,7 +358,10 @@ standard_scop <- function(
         srt
       },
       error = function(error) {
-        log_message(error, message_type = "warning", verbose = verbose)
+        err_msg <- conditionMessage(error)
+        err_msg <- gsub("{", "{{", err_msg, fixed = TRUE)
+        err_msg <- gsub("}", "}}", err_msg, fixed = TRUE)
+        log_message(err_msg, message_type = "warning", verbose = verbose)
         log_message(
           "Error when performing {.fn Seurat::FindClusters}. Skip it",
           message_type = "warning",
@@ -359,7 +379,7 @@ standard_scop <- function(
             verbose = verbose
           )
           for (n in nonlinear_reduction_dims) {
-            srt <- RunDimReduction(
+            srt <- RunDimsReduction(
               srt,
               prefix = paste0(prefix, lr),
               reduction_use = paste0(prefix, lr),
@@ -377,11 +397,10 @@ standard_scop <- function(
         srt
       },
       error = function(error) {
-        log_message(
-          error,
-          message_type = "warning",
-          verbose = verbose
-        )
+        err_msg <- conditionMessage(error)
+        err_msg <- gsub("{", "{{", err_msg, fixed = TRUE)
+        err_msg <- gsub("}", "}}", err_msg, fixed = TRUE)
+        log_message(err_msg, message_type = "warning", verbose = verbose)
         log_message(
           "Error when performing {.pkg {nr}} nonlinear dimension reduction. Skip it",
           message_type = "error"
@@ -391,23 +410,21 @@ standard_scop <- function(
     )
   }
 
-  if (paste0(prefix, linear_reduction[1], "clusters") %in% colnames(srt@meta.data)) {
-    srt[[paste0(prefix, "clusters")]] <- srt[[paste0(
-      prefix,
-      linear_reduction[1],
-      "clusters"
-    )]]
+  cluster_name <- paste0(prefix, linear_reduction[1], "clusters")
+  if (cluster_name %in% colnames(srt@meta.data)) {
+    srt[[paste0(prefix, "clusters")]] <- srt[[cluster_name]]
   }
   for (nr in nonlinear_reduction) {
     for (n in nonlinear_reduction_dims) {
-      if (paste0(prefix, linear_reduction[1], toupper(nr), n, "D") %in% names(srt@reductions)) {
-        reduc <- srt@reductions[[paste0(
-          prefix,
-          linear_reduction[1],
-          toupper(nr),
-          n,
-          "D"
-        )]]
+      reductions_name <- paste0(
+        prefix,
+        linear_reduction[1],
+        toupper(nr),
+        n,
+        "D"
+      )
+      if (reductions_name %in% names(srt@reductions)) {
+        reduc <- srt@reductions[[reductions_name]]
         srt@reductions[[paste0(prefix, toupper(nr), n, "D")]] <- reduc
       }
     }
@@ -418,8 +435,9 @@ standard_scop <- function(
   SeuratObject::VariableFeatures(srt) <- srt@misc[["Standard_HVF"]] <- HVF
 
   log_message(
-    "Run scop standard workflow done",
+    "Standard processing workflow completed",
     message_type = "success",
+    text_color = "green",
     verbose = verbose
   )
 

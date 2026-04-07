@@ -1,10 +1,7 @@
-#' @title Create data file
-#'
-#' @description
-#' Creates a data file in HDF5 format from a Seurat object.
+#' @title Create HDF5 data file from Seurat object
 #'
 #' @md
-#' @param srt A Seurat object.
+#' @inheritParams standard_scop
 #' @param data_file Path to the output data file.
 #' If not provided, the file will be named `"data.hdf5"` in the current directory.
 #' @param name Name of the dataset.
@@ -170,7 +167,7 @@ CreateDataFile <- function(
 #' @title Create Meta File in HDF5 format from Seurat object
 #'
 #' @md
-#' @param srt A Seurat object.
+#' @inheritParams standard_scop
 #' @param meta_file Path to the output meta file.
 #' If not provided, the file will be named `"meta.hdf5"` in the current directory.
 #' @param name Name of the dataset.
@@ -485,7 +482,7 @@ PrepareSCExplorer <- function(
   }
   if (any(sapply(object, function(x) !inherits(x, "Seurat")))) {
     log_message(
-      "{.arg object} must be one Seurat object or a list of Seurat object",
+      "{.arg object} must be one {.cls Seurat} or a list of {.cls Seurat}",
       message_type = "error"
     )
   }
@@ -498,7 +495,7 @@ PrepareSCExplorer <- function(
   if (length(names(object)) == 0) {
     names(object) <- make.names(sapply(object, function(x) x@project.name), unique = TRUE)
     log_message(
-      "Set the project name of each Seurat object to their dataset name"
+      "Set the project name of each {.cls Seurat} to their dataset name"
     )
   }
 
@@ -508,19 +505,19 @@ PrepareSCExplorer <- function(
     log_message("Prepare data for object: {.val {nm}}")
     if (length(SeuratObject::Reductions(srt)) == 0) {
       log_message(
-        "No reduction found in the Seurat object {.val {nm}}",
+        "No reduction found in {.cls Seurat} {.val {nm}}",
         message_type = "error"
       )
     }
     if (!any(assays %in% SeuratObject::Assays(srt))) {
       log_message(
-        "Assay: {.val {assays[!assays %in% SeuratObject::Assays(srt)]}} is not in the Seurat object {.val {nm}}",
+        "Assay: {.val {assays[!assays %in% SeuratObject::Assays(srt)]}} is not in {.cls Seurat} {.val {nm}}",
         message_type = "warning"
       )
       assays <- assays[assays %in% SeuratObject::Assays(srt)]
       if (length(assays) == 0) {
         log_message(
-          "No assays found in the Seurat object {.val {nm}}. Use the default assay to create data file",
+          "No assays found in {.cls Seurat} {.val {nm}}. Use the default assay to create data file",
           message_type = "warning"
         )
         assays <- SeuratObject::DefaultAssay(srt)
@@ -553,11 +550,7 @@ PrepareSCExplorer <- function(
   return(invisible(NULL))
 }
 
-#' @title Fetch data from the hdf5 file
-#'
-#' @description
-#' This function fetches data from an hdf5 file.
-#' It can fetch gene expression data, metadata, and reduction data from the specified file and returns a Seurat object.
+#' @title Fetch data from the hdf5 file and returns a Seurat object
 #'
 #' @md
 #' @param data_file The path to the hdf5 file containing the data.
@@ -873,6 +866,7 @@ CreateSeuratObject2 <- function(
 #' @title Run SCExplorer
 #'
 #' @md
+#' @inheritParams CreateDataFile
 #' @param base_dir The base directory of the SCExplorer app.
 #' Default is `"SCExplorer"`.
 #' @param data_file The name of the HDF5 file that stores data matrices for each dataset.
@@ -896,7 +890,7 @@ CreateSeuratObject2 <- function(
 #' @param initial_label Whether to add labels in the initial plot.
 #' Default is `FALSE`.
 #' @param initial_cell_palette The initial color palette for cells.
-#' Default is `"Paired"`.
+#' Default is `"Chinese"`.
 #' @param initial_feature_palette The initial color palette for features.
 #' Default is `"Spectral"`.
 #' @param initial_theme The initial theme for plots.
@@ -913,8 +907,6 @@ CreateSeuratObject2 <- function(
 #' @param create_script Whether to create the SCExplorer app script.
 #' Default is `TRUE`.
 #' @param style_script Whether to style the SCExplorer app script.
-#' Default is `TRUE`.
-#' @param overwrite Whether to overwrite existing files.
 #' Default is `TRUE`.
 #' @param return_app Whether to return the SCExplorer app.
 #' Default is `TRUE`.
@@ -956,6 +948,7 @@ CreateSeuratObject2 <- function(
 #'
 #' # Run shiny app
 #' if (interactive()) {
+#'   check_r("shiny")
 #'   shiny::runApp(app)
 #' }
 #' # Note: If scop installed in the isolated environment using renv,
@@ -991,7 +984,7 @@ RunSCExplorer <- function(
     initial_assay = NULL,
     initial_slot = NULL,
     initial_label = FALSE,
-    initial_cell_palette = "Paired",
+    initial_cell_palette = "Chinese",
     initial_feature_palette = "Spectral",
     initial_theme = "theme_scop",
     initial_size = 4,
@@ -999,7 +992,7 @@ RunSCExplorer <- function(
     initial_arrange = NULL,
     initial_raster = NULL,
     create_script = TRUE,
-    style_script = requireNamespace("styler", quietly = TRUE),
+    style_script = TRUE,
     overwrite = TRUE,
     return_app = TRUE) {
   check_r(
@@ -1013,8 +1006,10 @@ RunSCExplorer <- function(
       "plotly",
       "bslib",
       "promises",
-      "mengxu98/thisplot"
-    )
+      "thisutils",
+      "thisplot"
+    ),
+    verbose = FALSE
   )
   DataFile_full <- paste0(base_dir, "/", data_file)
   MetaFile_full <- paste0(base_dir, "/", meta_file)
@@ -2679,18 +2674,17 @@ server <- function(input, output, session) {
   }
   app_code <- c(
     "# !/usr/bin/env Rscript",
-    "if (!requireNamespace('scop', quietly = TRUE)) {
+    "if (!requireNamespace('thisutils', quietly = TRUE)) {
       if (!requireNamespace('pak', quietly = TRUE)) {
         install.packages('pak')
       }
-      pak::pak('mengxu98/scop')
+      pak::pak('thisutils')
     }",
-    "options(scop_env_init = FALSE)",
-    "scop::check_r(
+    "thisutils::check_r(
        c(
          'rhdf5', 'HDF5Array', 'shiny', 'ggplot2', 'ragg',
          'htmlwidgets', 'plotly', 'bslib', 'promises',
-         'mengxu98/thisplot', 'thisutils'
+         'thisplot'
        )
     )",
     "library(shiny)",
@@ -2717,9 +2711,10 @@ server <- function(input, output, session) {
       file.copy(from = temp, to = app_file, overwrite = TRUE)
       if (isTRUE(style_script)) {
         log_message("Styling the script...")
+        check_r("styler", verbose = FALSE)
         invisible(
           utils::capture.output(
-            styler::style_file(app_file)
+            get_namespace_fun("styler", "style_file")(app_file)
           )
         )
       }
@@ -2733,7 +2728,7 @@ server <- function(input, output, session) {
   unlink(temp)
 
   if (isTRUE(return_app)) {
-    app <- shiny::shinyAppDir(base_dir)
+    app <- get_namespace_fun("shiny", "shinyAppDir")(base_dir)
     return(app)
   } else {
     return(invisible(NULL))

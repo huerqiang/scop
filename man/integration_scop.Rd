@@ -2,7 +2,7 @@
 % Please edit documentation in R/integration.R
 \name{integration_scop}
 \alias{integration_scop}
-\title{The integration_scop function}
+\title{The integration workflow}
 \usage{
 integration_scop(
   srt_merge = NULL,
@@ -10,8 +10,9 @@ integration_scop(
   append = TRUE,
   srt_list = NULL,
   assay = NULL,
-  integration_method = c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony",
-    "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat"),
+  integration_method = c("Uncorrected", "Seurat", "CCA", "RPCA", "scVI", "scVI5", "MNN",
+    "fastMNN", "fastMNN5", "Harmony", "Harmony5", "Scanorama", "BBKNN", "CSS",
+    "Coralysis", "LIGER", "Conos", "ComBat"),
   do_normalization = NULL,
   normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
@@ -52,11 +53,13 @@ Default is \code{TRUE}.}
 
 \item{srt_list}{A list of \code{Seurat} objects to be checked and preprocessed.}
 
-\item{assay}{The name of the assay to be used for downstream analysis.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{integration_method}{A character vector specifying the integration method to use.
-Supported methods are: \code{"Uncorrected"}, \code{"Seurat"}, \code{"scVI"}, \code{"MNN"}, \code{"fastMNN"},
-\code{"Harmony"}, \code{"Scanorama"}, \code{"BBKNN"}, \code{"CSS"}, \code{"LIGER"}, \code{"Conos"}, \code{"ComBat"}.
+Supported methods are: \code{"Uncorrected"}, \code{"Seurat"}, \code{"CCA"}, \code{"RPCA"}, \code{"scVI"},
+\code{"scVI5"}, \code{"MNN"}, \code{"fastMNN"}, \code{"fastMNN5"}, \code{"Harmony"}, \code{"Harmony5"},
+\code{"Scanorama"}, \code{"BBKNN"}, \code{"CSS"}, \code{"Coralysis"}, \code{"LIGER"}, \code{"Conos"}, \code{"ComBat"}.
 Default is \code{"Uncorrected"}.}
 
 \item{do_normalization}{Whether data normalization should be performed.
@@ -66,24 +69,26 @@ Default is \code{TRUE}.}
 Possible values are \code{"LogNormalize"}, \code{"SCT"}, and \code{"TFIDF"}.
 Default is \code{"LogNormalize"}.}
 
-\item{do_HVF_finding}{Whether highly variable feature (HVF) finding should be performed.
-Default is \code{TRUE}.}
+\item{do_HVF_finding}{Whether to perform high variable feature finding.
+If \code{TRUE}, the function will force to find the highly variable features (HVF) using the specified HVF method.}
 
 \item{HVF_source}{The source of highly variable features.
 Possible values are \code{"global"} and \code{"separate"}.
 Default is \code{"separate"}.}
 
-\item{HVF_method}{The method for selecting highly variable features.
+\item{HVF_method}{The method to use for finding highly variable features.
+Options are \code{"vst"}, \code{"mvp"}, or \code{"disp"}.
 Default is \code{"vst"}.}
 
 \item{nHVF}{The number of highly variable features to select.
+If NULL, all highly variable features will be used.
 Default is \code{2000}.}
 
 \item{HVF_min_intersection}{The feature needs to be present in batches for a minimum number of times in order to be considered as highly variable.
-The default value is \code{1}.}
+Default is \code{1}.}
 
-\item{HVF}{A vector of highly variable features.
-Default is \code{NULL}.}
+\item{HVF}{A vector of feature names to use as highly variable features.
+If NULL, the function will use the highly variable features identified by the HVF method.}
 
 \item{do_scaling}{Whether to perform scaling.
 If \code{TRUE}, the function will force to scale the data using the \link[Seurat:ScaleData]{Seurat::ScaleData} function.}
@@ -107,7 +112,8 @@ Default is \code{"pca"}.}
 Default is \code{50}.}
 
 \item{linear_reduction_dims_use}{The dimensions to use for downstream analysis.
-If \code{NULL}, all dimensions will be used.}
+If \code{NULL}, estimated dimensions stored in the linear reduction will be used when available;
+otherwise, the first up to \code{50} dimensions will be used as a fallback.}
 
 \item{linear_reduction_params}{A list of parameters to pass to the linear dimensionality reduction method.}
 
@@ -142,7 +148,7 @@ Default is \code{"louvain"}.}
 Larger values result in fewer clusters.
 Default is \code{0.6}.}
 
-\item{seed}{An integer specifying the random seed for reproducibility.
+\item{seed}{Random seed for reproducibility.
 Default is \code{11}.}
 
 \item{verbose}{Whether to print the message.
@@ -161,56 +167,19 @@ data(panc8_sub)
 panc8_sub <- integration_scop(
   panc8_sub,
   batch = "tech",
-  integration_method = "Uncorrected"
+  integration_method = "LIGER"
 )
 CellDimPlot(
   panc8_sub,
   group.by = c("tech", "celltype")
 )
-
-panc8_sub <- integration_scop(
-  panc8_sub,
-  batch = "tech",
-  integration_method = "Uncorrected",
-  HVF_min_intersection = 5
-)
-CellDimPlot(
-  panc8_sub,
-  group.by = c("tech", "celltype")
-)
-
-panc8_sub <- integration_scop(
-  panc8_sub,
-  batch = "tech",
-  integration_method = "Uncorrected",
-  HVF_min_intersection = 5,
-  scale_within_batch = TRUE
-)
-CellDimPlot(
-  panc8_sub,
-  group.by = c("tech", "celltype")
-)
-
-\dontrun{
-panc8_sub <- integration_scop(
-  panc8_sub,
-  batch = "tech",
-  integration_method = "Seurat"
-)
-CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
-
-panc8_sub <- integration_scop(
-  panc8_sub,
-  batch = "tech",
-  integration_method = "Seurat",
-  FindIntegrationAnchors_params = list(reduction = "rpca")
-)
-CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 
 integration_methods <- c(
-  "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony",
-  "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat"
+  "Uncorrected", "Seurat", "CCA", "RPCA", "scVI", "scVI5",
+  "MNN", "fastMNN", "fastMNN5", "Harmony", "Harmony5",
+  "Scanorama", "BBKNN", "CSS", "Coralysis", "LIGER", "Conos", "ComBat"
 )
+p_list <- list()
 for (method in integration_methods) {
   panc8_sub <- integration_scop(
     panc8_sub,
@@ -219,13 +188,14 @@ for (method in integration_methods) {
     linear_reduction_dims_use = 1:50,
     nonlinear_reduction = "umap"
   )
-  print(
-    CellDimPlot(panc8_sub,
-      group.by = c("tech", "celltype"),
-      reduction = paste0(method, "UMAP2D"),
-      xlab = "", ylab = "", title = method,
-      legend.position = "none", theme_use = "theme_blank"
-    )
+  p_list[[method]] <- CellDimPlot(
+    panc8_sub,
+    group.by = c("tech", "celltype"),
+    reduction = paste0(method, "UMAP2D"),
+    xlab = "", ylab = "",
+    title = method,
+    legend.position = "none",
+    theme_use = "theme_blank"
   )
 }
 
@@ -252,7 +222,6 @@ for (nr in nonlinear_reductions) {
   )
 }
 }
-}
 \seealso{
 \link{Seurat_integrate},
 \link{scVI_integrate},
@@ -262,8 +231,8 @@ for (nr in nonlinear_reductions) {
 \link{Scanorama_integrate},
 \link{BBKNN_integrate},
 \link{CSS_integrate},
+\link{Coralysis_integrate},
 \link{LIGER_integrate},
 \link{Conos_integrate},
-\link{ComBat_integrate},
-\link{standard_scop}
+\link{ComBat_integrate}
 }

@@ -4,22 +4,11 @@
 #' Annotate features in a Seurat object with additional metadata from databases or a GTF file.
 #'
 #' @md
+#' @inheritParams PrepareDB
 #' @param srt Seurat object to be annotated.
-#' @param species Name of the species to be used for annotation.
-#' Default is `"Homo_sapiens"`.
 #' @param IDtype Type of identifier to use for annotation.
 #' Options are `"symbol"`, `"ensembl_id"`, or `"entrez_id"`.
 #' Default is `"symbol"`.
-#' @param db Vector of database names to be used for annotation.
-#' Default is `NULL`.
-#' @param db_update Whether to update the database.
-#' Default is `FALSE`.
-#' @param db_version Version of the database to use.
-#' Default is `"latest"`.
-#' @param convert_species Whether to use a species-converted database when the annotation is missing for the specified species.
-#' Default is `TRUE`.
-#' @param Ensembl_version Version of the Ensembl database to use.
-#' Default is `103`.
 #' @param mirror URL of the mirror to use for Ensembl database.
 #' Default is `NULL`.
 #' @param gtf Path to the GTF file to be used for annotation.
@@ -40,18 +29,13 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' data(pancreas_sub)
 #' pancreas_sub <- AnnotateFeatures(
 #'   pancreas_sub,
 #'   species = "Mus_musculus",
 #'   db = c(
-#'     "Chromosome",
-#'     "GeneType",
-#'     "Enzyme",
 #'     "TF",
-#'     "CSPA",
-#'     "VerSeDa"
+#'     "CSPA"
 #'   )
 #' )
 #' head(
@@ -60,6 +44,7 @@
 #'   )
 #' )
 #'
+#' \dontrun{
 #' # Annotate features using a GTF file
 #' pancreas_sub <- AnnotateFeatures(
 #'   pancreas_sub,
@@ -98,7 +83,7 @@ AnnotateFeatures <- function(
   IDtype <- match.arg(IDtype)
   if (is.null(db) && is.null(gtf)) {
     log_message(
-      "Neither 'db' nor 'gtf' is specified",
+      "One of {.arg db} and {.arg gtf} must be specified",
       message_type = "error"
     )
   }
@@ -117,10 +102,7 @@ AnnotateFeatures <- function(
     db_notfound <- setdiff(db, names(db_list[[species]]))
     if (length(db_notfound) > 0) {
       log_message(
-        paste0(
-          "The following databases are not found:",
-          paste0(db_notfound, collapse = ",")
-        ),
+        "The following databases are not found: {.val {db_notfound}}",
         message_type = "warning"
       )
     }
@@ -158,11 +140,7 @@ AnnotateFeatures <- function(
         ]
         if (nrow(db_sub) == 0) {
           log_message(
-            paste0(
-              "No data to append was found in the Seurat object. Please check if the species name is correct. The expected feature names are ",
-              paste(utils::head(rownames(db_df), 10), collapse = ","),
-              "."
-            ),
+            "No data to append was found in {.cls Seurat}. Please check if the species name is correct. The expected feature names are {.val {utils::head(rownames(db_df), 10)}}",
             message_type = "error"
           )
         }
@@ -185,20 +163,20 @@ AnnotateFeatures <- function(
 
   if (!is.null(gtf)) {
     gtf_all <- suppressWarnings(
-      data.table::fread(gtf, sep = "\t")
+      utils::read.table(gtf, sep = "\t", header = FALSE)
     )
     gtf_all <- gtf_all[, 1:9]
-    colnames(gtf_all) <- c(
+    columns <- c(
       "seqname",
-      "source",
       "feature",
       "start",
       "end",
-      "score",
       "strand",
-      "frame",
-      "attribute"
+      "gene_id",
+      "gene_name",
+      "gene_type"
     )
+    colnames(gtf_all) <- columns
     for (type in c("gene", "transcript", "exon", "CDS")) {
       if (type %in% gtf_all[["feature"]]) {
         gtf_all <- gtf_all[gtf_all[["feature"]] == type, ]
@@ -219,7 +197,8 @@ AnnotateFeatures <- function(
         out[intersect(columns, names(out))]
       }
     )
-    gene_attr_df <- data.table::rbindlist(gene_attr, fill = TRUE)
+
+    gene_attr_df <- do.call(rbind, gene_attr)
     gtf_columns <- cbind(
       gtf_all[, intersect(colnames(gtf_all), columns), with = FALSE],
       gene_attr_df

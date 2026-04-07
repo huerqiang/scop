@@ -2,34 +2,24 @@
 #'
 #' @md
 #' @inheritParams GeneConvert
+#' @inheritParams PrepareDB
+#' @inheritParams CellDimPlot
 #' @param srt A Seurat object containing the results of differential expression analysis (RunDEtest).
 #' If specified, the genes and groups will be extracted from the Seurat object automatically.
-#' If not specified, the \code{geneID} and \code{geneID_groups} arguments must be provided.
-#' @param group_by A character vector specifying the grouping variable in the Seurat object.
-#' This argument is only used if \code{srt} is specified.
+#' If not specified, the `geneID` and `geneID_groups` arguments must be provided.
 #' @param test.use A character vector specifying the test to be used in differential expression analysis.
-#' This argument is only used if \code{srt} is specified.
+#' This argument is only used if `srt` is specified.
 #' @param DE_threshold A character vector specifying the filter condition for differential expression analysis.
-#' This argument is only used if \code{srt} is specified.
+#' This argument is only used if `srt` is specified.
 #' @param geneID A character vector specifying the gene IDs.
 #' @param geneID_groups A factor vector specifying the group labels for each gene.
 #' @param geneID_exclude A character vector specifying the gene IDs to be excluded from the analysis.
-#' @param IDtype A character vector specifying the type of gene IDs in the \code{srt} object or \code{geneID} argument.
-#' This argument is used to convert the gene IDs to a different type if \code{IDtype} is different from \code{result_IDtype}.
+#' @param IDtype A character vector specifying the type of gene IDs in the `srt` object or `geneID` argument.
+#' This argument is used to convert the gene IDs to a different type if `IDtype` is different from `result_IDtype`.
 #' @param result_IDtype A character vector specifying the desired type of gene ID to be used in the output.
-#' This argument is used to convert the gene IDs from \code{IDtype} to \code{result_IDtype}.
-#' @param species A character vector specifying the species for which the analysis is performed.
-#' @param db A character vector specifying the name of the database to be used for enrichment analysis.
-#' @param db_update Whether the gene annotation databases should be forcefully updated.
-#' If set to FALSE, the function will attempt to load the cached databases instead.
-#' Default is FALSE.
-#' @param db_version A character vector specifying the version of the database to be used.
-#' This argument is ignored if \code{db_update} is \code{TRUE}.
-#' Default is "latest".
+#' This argument is used to convert the gene IDs from `IDtype` to `result_IDtype`.
 #' @param db_combine Whether to combine multiple databases into one.
-#' If TRUE, all database specified by \code{db} will be combined as one named "Combined".
-#' @param convert_species Whether to use a species-converted database when the annotation is missing for the specified species.
-#' The default value is TRUE.
+#' If `TRUE`, all database specified by `db` will be combined as one named "Combined".
 #' @param TERM2GENE A data frame specifying the gene-term mapping for a custom database.
 #' The first column should contain the term IDs, and the second column should contain the gene IDs.
 #' @param TERM2NAME A data frame specifying the term-name mapping for a custom database.
@@ -38,27 +28,27 @@
 #' @param maxGSSize The maximum size of a gene set to be considered in the enrichment analysis.
 #' @param unlimited_db A character vector specifying the names of databases that do not have size restrictions.
 #' @param GO_simplify Whether to simplify the GO terms.
-#' If \code{TRUE}, additional results with simplified GO terms will be returned.
+#' If `TRUE`, additional results with simplified GO terms will be returned.
 #' @param GO_simplify_cutoff A character vector specifying the filter condition for simplification of GO terms.
-#' This argument is only used if \code{GO_simplify} is \code{TRUE}.
+#' This argument is only used if `GO_simplify` is `TRUE`.
 #' @param simplify_method A character vector specifying the method to be used for simplification of GO terms.
-#' This argument is only used if \code{GO_simplify} is \code{TRUE}.
+#' This argument is only used if `GO_simplify` is `TRUE`.
 #' @param simplify_similarityCutoff The similarity cutoff for simplification of GO terms.
-#' This argument is only used if \code{GO_simplify} is \code{TRUE}.
+#' This argument is only used if `GO_simplify` is `TRUE`.
 #' @inheritParams thisutils::parallelize_fun
 #'
-#' @returns
+#' @return
 #' If input is a Seurat object, returns the modified Seurat object with the enrichment result stored in the tools slot.
 #'
 #' If input is a geneID vector with or without geneID_groups, return the enrichment result directly.
 #'
 #' Enrichment result is a list with the following component:
 #' \itemize{
-#'  \item \code{enrichment}: A data.frame containing all enrichment results.
-#'  \item \code{results}: A list of \code{enrichResult} objects from the DOSE package.
-#'  \item \code{geneMap}: A data.frame containing the ID mapping table for input gene IDs.
-#'  \item \code{input}: A data.frame containing the input gene IDs and gene ID groups.
-#'  \item \code{DE_threshold}: A specific threshold for differential expression analysis (only returned if input is a Seurat object).
+#'  \item `enrichment`: A data.frame containing all enrichment results.
+#'  \item `results`: A list of `enrichResult` objects from the DOSE package.
+#'  \item `geneMap`: A data.frame containing the ID mapping table for input gene IDs.
+#'  \item `input`: A data.frame containing the input gene IDs and gene ID groups.
+#'  \item `DE_threshold`: A specific threshold for differential expression analysis (only returned if input is a Seurat object).
 #' }
 #'
 #' @seealso
@@ -71,11 +61,11 @@
 #' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunDEtest(
 #'   pancreas_sub,
-#'   group_by = "CellType"
+#'   group.by = "CellType"
 #' )
 #' pancreas_sub <- RunEnrichment(
 #'   pancreas_sub,
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   DE_threshold = "p_val_adj < 0.05",
 #'   db = "GO_BP",
 #'   species = "Mus_musculus"
@@ -83,14 +73,14 @@
 #' EnrichmentPlot(
 #'   pancreas_sub,
 #'   db = "GO_BP",
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   plot_type = "comparison"
 #' )
 #'
 #' \dontrun{
 #' pancreas_sub <- RunEnrichment(
 #'   pancreas_sub,
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   DE_threshold = "p_val_adj < 0.05",
 #'   db = c("MSigDB", "MSigDB_MH"),
 #'   species = "Mus_musculus"
@@ -98,20 +88,20 @@
 #' EnrichmentPlot(
 #'   pancreas_sub,
 #'   db = "MSigDB",
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   plot_type = "comparison"
 #' )
 #' EnrichmentPlot(
 #'   pancreas_sub,
 #'   db = "MSigDB_MH",
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   plot_type = "comparison"
 #' )
 #'
 #' # Remove redundant GO terms
 #' pancreas_sub <- RunEnrichment(
 #'   pancreas_sub,
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   db = "GO_BP",
 #'   GO_simplify = TRUE,
 #'   species = "Mus_musculus"
@@ -119,7 +109,7 @@
 #' EnrichmentPlot(
 #'   pancreas_sub,
 #'   db = "GO_BP_sim",
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   plot_type = "comparison"
 #' )
 #'
@@ -143,7 +133,7 @@
 #' # Use a combined database
 #' pancreas_sub <- RunEnrichment(
 #'   pancreas_sub,
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   db = c(
 #'     "KEGG", "WikiPathway", "Reactome", "PFAM", "MP"
 #'   ),
@@ -153,13 +143,13 @@
 #' EnrichmentPlot(
 #'   pancreas_sub,
 #'   db = "Combined",
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   plot_type = "comparison"
 #' )
 #' }
 RunEnrichment <- function(
     srt = NULL,
-    group_by = NULL,
+    group.by = NULL,
     test.use = "wilcox",
     DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
     geneID = NULL,
@@ -187,21 +177,20 @@ RunEnrichment <- function(
     cores = 1,
     verbose = TRUE) {
   log_message("Start {.pkg Enrichment} analysis", verbose = verbose)
-  check_r("clusterProfiler")
+  check_r("clusterProfiler", verbose = FALSE)
   use_srt <- FALSE
   if (is.null(geneID)) {
-    if (is.null(group_by)) {
-      group_by <- "custom"
+    if (is.null(group.by)) {
+      group.by <- "custom"
     }
-    layer <- paste0("DEtest_", group_by)
+    layer <- paste0("DEtest_", group.by)
     if (
       !layer %in% names(srt@tools) ||
         length(grep(pattern = "AllMarkers", names(srt@tools[[layer]]))) == 0
     ) {
       log_message(
-        "Cannot find the DEtest result for the group '",
-        group_by,
-        "'. You may perform RunDEtest first.",
+        "Cannot find the DEtest result for the group {.val {group.by}}. ",
+        "You may perform {.fn RunDEtest} first",
         message_type = "error"
       )
     }
@@ -211,7 +200,7 @@ RunEnrichment <- function(
     )[1]
     if (is.na(index)) {
       log_message(
-        "Cannot find the 'AllMarkers_", test.use, "' in the DEtest result.",
+        "Cannot find the {.val AllMarkers_{test.use}} in the DEtest result",
         message_type = "error"
       )
     }
@@ -478,7 +467,7 @@ RunEnrichment <- function(
   )
   if (isTRUE(use_srt)) {
     res[["DE_threshold"]] <- DE_threshold
-    srt@tools[[paste("Enrichment", group_by, test.use, sep = "_")]] <- res
+    srt@tools[[paste("Enrichment", group.by, test.use, sep = "_")]] <- res
     return(srt)
   } else {
     return(res)

@@ -20,7 +20,7 @@ srt_to_adata(
 \item{srt}{A Seurat object.}
 
 \item{features}{Optional vector of features to include in the anndata object.
-Defaults to all features in \code{assay_x}.}
+Default is all features in \code{assay_x}.}
 
 \item{assay_x}{Assay to convert as the main data matrix in the anndata object.
 Default is \code{"RNA"}.}
@@ -47,7 +47,7 @@ Default is \code{TRUE}.}
 A \code{anndata} object.
 }
 \description{
-This function takes a Seurat object and converts it to an anndata object using the reticulate package.
+Convert a Seurat object to an AnnData object
 }
 \examples{
 \dontrun{
@@ -64,4 +64,7 @@ adata$write_loom(
   write_obsm_varm = TRUE
 )
 }
+}
+\seealso{
+\link{adata_to_srt}
 }

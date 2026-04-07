@@ -12,7 +12,7 @@ ProjectionPlot(
   query_reduction = "ref.embeddings",
   ref_reduction = srt_query[[query_reduction]]@misc[["reduction.model"]] \%||\% NULL,
   query_param = list(palette = "Set1", cells.highlight = TRUE),
-  ref_param = list(palette = "Paired"),
+  ref_param = list(palette = "Chinese"),
   xlim = NULL,
   ylim = NULL,
   pt.size = 0.8,
@@ -20,9 +20,11 @@ ProjectionPlot(
 )
 }
 \arguments{
-\item{srt_query}{A Seurat object storing the query cells.}
+\item{srt_query}{An object of class Seurat to be annotated with cell types.}
 
-\item{srt_ref}{A Seurat object storing the reference cells.}
+\item{srt_ref}{A Seurat object or count matrix representing the reference object.
+If provided, the similarities will be calculated between cells from the query and reference objects.
+If not provided, the similarities will be calculated within the query object.}
 
 \item{query_group}{The grouping variable for the query group cells.}
 

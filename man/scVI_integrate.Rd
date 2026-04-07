@@ -30,7 +30,7 @@ scVI_integrate(
   model = "SCVI",
   SCVI_params = list(),
   PEAKVI_params = list(),
-  num_threads = 1,
+  cores = 1,
   verbose = TRUE,
   seed = 11
 )
@@ -45,7 +45,8 @@ Default is \code{TRUE}.}
 
 \item{srt_list}{A list of \code{Seurat} objects to be checked and preprocessed.}
 
-\item{assay}{The name of the assay to be used for downstream analysis.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{do_normalization}{Whether data normalization should be performed.
 Default is \code{TRUE}.}
@@ -54,26 +55,28 @@ Default is \code{TRUE}.}
 Possible values are \code{"LogNormalize"}, \code{"SCT"}, and \code{"TFIDF"}.
 Default is \code{"LogNormalize"}.}
 
-\item{do_HVF_finding}{Whether highly variable feature (HVF) finding should be performed.
-Default is \code{TRUE}.}
+\item{do_HVF_finding}{Whether to perform high variable feature finding.
+If \code{TRUE}, the function will force to find the highly variable features (HVF) using the specified HVF method.}
 
 \item{HVF_source}{The source of highly variable features.
 Possible values are \code{"global"} and \code{"separate"}.
 Default is \code{"separate"}.}
 
-\item{HVF_method}{The method for selecting highly variable features.
+\item{HVF_method}{The method to use for finding highly variable features.
+Options are \code{"vst"}, \code{"mvp"}, or \code{"disp"}.
 Default is \code{"vst"}.}
 
 \item{nHVF}{The number of highly variable features to select.
+If NULL, all highly variable features will be used.
 Default is \code{2000}.}
 
 \item{HVF_min_intersection}{The feature needs to be present in batches for a minimum number of times in order to be considered as highly variable.
-The default value is \code{1}.}
+Default is \code{1}.}
 
-\item{HVF}{A vector of highly variable features.
-Default is \code{NULL}.}
+\item{HVF}{A vector of feature names to use as highly variable features.
+If NULL, the function will use the highly variable features identified by the HVF method.}
 
-\item{scVI_dims_use}{A vector specifying the dimensions returned by scVI that will be utilized for downstream cell cluster finding and non-linear reduction.
+\item{scVI_dims_use}{A vector specifying the dimensions returned by scVI that will be utilized for downstream cell cluster finding and nonlinear reduction.
 If set to NULL, all the returned dimensions will be used by default.}
 
 \item{nonlinear_reduction}{The nonlinear dimensionality reduction method to use.
@@ -107,21 +110,21 @@ Default is \code{0.6}.}
 
 \item{model}{A string indicating the scVI model to be used.
 Options are "SCVI" and "PEAKVI".
-Default is "SCVI".}
+Default is `"SCVI"`.}
 
 \item{SCVI_params}{A list of parameters for the SCVI model.
-Default is an empty list.}
+Default is `list()`.}
 
 \item{PEAKVI_params}{A list of parameters for the PEAKVI model.
-Default is an empty list.}
+Default is `list()`.}
 
-\item{num_threads}{An integer setting the number of threads for scVI.
-Default is 8.}
+\item{cores}{An integer setting the number of threads for `scVI`.
+Default is `1`.}
 
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
 
-\item{seed}{An integer specifying the random seed for reproducibility.
+\item{seed}{Random seed for reproducibility.
 Default is \code{11}.}
 }
 \description{

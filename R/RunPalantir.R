@@ -2,7 +2,7 @@
 #'
 #' @md
 #' @inheritParams thisutils::log_message
-#' @inheritParams RunPAGA
+#' @inheritParams RunCellRank
 #' @param dm_n_components The number of diffusion components to calculate.
 #' @param dm_alpha Normalization parameter for the diffusion operator.
 #' @param dm_n_eigs Number of eigen vectors to use.
@@ -16,9 +16,7 @@
 #' @param adjust_early_cell Whether to adjust the early cell to the cell with the minimum pseudotime value.
 #' @param adjust_terminal_cells Whether to adjust the terminal cells to the cells with the maximum pseudotime value for each terminal group.
 #' @param max_iterations Maximum number of iterations for pseudotime convergence.
-#' @param n_jobs The number of parallel jobs to run.
-#'
-#' @seealso [srt_to_adata]
+#' @param point_size The point size for plotting.
 #'
 #' @export
 #'
@@ -28,11 +26,10 @@
 #' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunPalantir(
 #'   pancreas_sub,
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   linear_reduction = "PCA",
 #'   nonlinear_reduction = "UMAP",
 #'   early_group = "Ductal",
-#'   use_early_cell_as_start = TRUE,
 #'   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon")
 #' )
 #'
@@ -56,7 +53,7 @@ RunPalantir <- function(
     assay_y = c("spliced", "unspliced"),
     layer_y = "counts",
     adata = NULL,
-    group_by = NULL,
+    group.by = NULL,
     linear_reduction = NULL,
     nonlinear_reduction = NULL,
     basis = NULL,
@@ -75,15 +72,17 @@ RunPalantir <- function(
     adjust_early_cell = FALSE,
     adjust_terminal_cells = FALSE,
     max_iterations = 25,
-    n_jobs = 1,
+    cores = 1,
     point_size = 20,
-    palette = "Paired",
+    palette = "Chinese",
     palcolor = NULL,
+    legend.position = "on data",
     show_plot = FALSE,
-    save = FALSE,
-    dpi = 300,
+    save_plot = FALSE,
+    plot_format = c("pdf", "png", "svg"),
+    plot_dpi = 300,
+    plot_prefix = "palantir",
     dirpath = "./",
-    fileprefix = "",
     return_seurat = !is.null(srt),
     verbose = TRUE) {
   PrepareEnv()
@@ -94,9 +93,9 @@ RunPalantir <- function(
       message_type = "error"
     )
   }
-  if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
+  if (is.null(group.by) && any(!is.null(early_group), !is.null(terminal_groups))) {
     log_message(
-      "{.arg group_by} must be provided when {.arg early_group} or {.arg terminal_groups} provided.",
+      "{.arg group.by} must be provided when {.arg early_group} or {.arg terminal_groups} provided.",
       message_type = "error"
     )
   }
@@ -131,21 +130,57 @@ RunPalantir <- function(
       arg
     }
   })
-  args <- args[
-    !names(args) %in%
-      c(
-        "srt",
-        "assay_x",
-        "layer_x",
-        "assay_y",
-        "layer_y",
-        "return_seurat",
-        "palette",
-        "palcolor"
-      )
-  ]
+
+  args[["legend_loc"]] <- legend.position
+
+  args[["n_jobs"]] <- as.integer(cores)
+
+  args[["save"]] <- save_plot
+  args[["dpi"]] <- plot_dpi
+  args[["fileprefix"]] <- plot_prefix
+  params <- c(
+    "srt",
+    "assay_x",
+    "layer_x",
+    "assay_y",
+    "layer_y",
+    "return_seurat",
+    "palette",
+    "palcolor",
+    "save_plot",
+    "plot_format",
+    "plot_dpi",
+    "plot_prefix",
+    "legend.position",
+    "cores"
+  )
+  args <- args[!names(args) %in% params]
 
   if (!is.null(srt)) {
+    if (is.null(linear_reduction)) {
+      linear_reduction <- DefaultReduction(srt)
+    } else {
+      linear_reduction <- DefaultReduction(srt, pattern = linear_reduction)
+    }
+    if (!linear_reduction %in% names(srt@reductions)) {
+      log_message(
+        "{.val {linear_reduction}} is not in the srt reduction names",
+        message_type = "error"
+      )
+    }
+
+    if (is.null(nonlinear_reduction)) {
+      nonlinear_reduction <- DefaultReduction(srt)
+    } else {
+      nonlinear_reduction <- DefaultReduction(srt, pattern = nonlinear_reduction)
+    }
+    if (!nonlinear_reduction %in% names(srt@reductions)) {
+      log_message(
+        "{.val {nonlinear_reduction}} is not in the srt reduction names",
+        message_type = "error"
+      )
+    }
+
     args[["adata"]] <- srt_to_adata(
       srt = srt,
       assay_x = assay_x,
@@ -153,33 +188,28 @@ RunPalantir <- function(
       assay_y = assay_y,
       layer_y = layer_y
     )
+
     if (!is.null(linear_reduction)) {
-      if (!startsWith(linear_reduction, "X_")) {
-        args[["linear_reduction"]] <- paste0(
-          "X_", tolower(linear_reduction)
-        )
-      }
+      args[["linear_reduction"]] <- linear_reduction
     }
     if (!is.null(nonlinear_reduction)) {
-      if (!startsWith(nonlinear_reduction, "X_")) {
-        args[["nonlinear_reduction"]] <- paste0(
-          "X_", tolower(nonlinear_reduction)
-        )
-      }
+      args[["nonlinear_reduction"]] <- nonlinear_reduction
     }
     if (is.null(basis)) {
-      if (!is.null(args[["nonlinear_reduction"]])) {
-        args[["basis"]] <- args[["nonlinear_reduction"]]
-      } else if (!is.null(args[["linear_reduction"]])) {
-        args[["basis"]] <- args[["linear_reduction"]]
+      if (!is.null(nonlinear_reduction)) {
+        args[["basis"]] <- nonlinear_reduction
+      } else if (!is.null(linear_reduction)) {
+        args[["basis"]] <- linear_reduction
       }
     } else {
-      if (!startsWith(basis, "X_")) {
-        args[["basis"]] <- paste0("X_", tolower(basis))
-      }
+      args[["basis"]] <- basis
     }
   }
-  groups <- py_to_r2(args[["adata"]]$obs)[[group_by]]
+  if ("group.by" %in% names(args)) {
+    args[["group_by"]] <- args[["group.by"]]
+    args[["group.by"]] <- NULL
+  }
+  groups <- py_to_r2(args[["adata"]]$obs)[[group.by]]
   args[["palette"]] <- palette_colors(
     levels(groups) %||% unique(groups),
     palette = palette,

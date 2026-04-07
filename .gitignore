@@ -2,11 +2,13 @@
 .DS_Store
 
 # R
+.cache
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 .Rprofile
+..Rcheck
 
 # directories and files
 SCExplorer
@@ -15,3 +17,4 @@ tmaps
 test
 *.h5ad
 *.pyc
+.codex

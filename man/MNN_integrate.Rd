@@ -50,7 +50,8 @@ Default is \code{TRUE}.}
 
 \item{srt_list}{A list of \code{Seurat} objects to be checked and preprocessed.}
 
-\item{assay}{The name of the assay to be used for downstream analysis.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{do_normalization}{Whether data normalization should be performed.
 Default is \code{TRUE}.}
@@ -59,24 +60,26 @@ Default is \code{TRUE}.}
 Possible values are \code{"LogNormalize"}, \code{"SCT"}, and \code{"TFIDF"}.
 Default is \code{"LogNormalize"}.}
 
-\item{do_HVF_finding}{Whether highly variable feature (HVF) finding should be performed.
-Default is \code{TRUE}.}
+\item{do_HVF_finding}{Whether to perform high variable feature finding.
+If \code{TRUE}, the function will force to find the highly variable features (HVF) using the specified HVF method.}
 
 \item{HVF_source}{The source of highly variable features.
 Possible values are \code{"global"} and \code{"separate"}.
 Default is \code{"separate"}.}
 
-\item{HVF_method}{The method for selecting highly variable features.
+\item{HVF_method}{The method to use for finding highly variable features.
+Options are \code{"vst"}, \code{"mvp"}, or \code{"disp"}.
 Default is \code{"vst"}.}
 
 \item{nHVF}{The number of highly variable features to select.
+If NULL, all highly variable features will be used.
 Default is \code{2000}.}
 
 \item{HVF_min_intersection}{The feature needs to be present in batches for a minimum number of times in order to be considered as highly variable.
-The default value is \code{1}.}
+Default is \code{1}.}
 
-\item{HVF}{A vector of highly variable features.
-Default is \code{NULL}.}
+\item{HVF}{A vector of feature names to use as highly variable features.
+If NULL, the function will use the highly variable features identified by the HVF method.}
 
 \item{do_scaling}{Whether to perform scaling.
 If \code{TRUE}, the function will force to scale the data using the \link[Seurat:ScaleData]{Seurat::ScaleData} function.}
@@ -100,7 +103,8 @@ Default is \code{"pca"}.}
 Default is \code{50}.}
 
 \item{linear_reduction_dims_use}{The dimensions to use for downstream analysis.
-If \code{NULL}, all dimensions will be used.}
+If \code{NULL}, estimated dimensions stored in the linear reduction will be used when available;
+otherwise, the first up to \code{50} dimensions will be used as a fallback.}
 
 \item{linear_reduction_params}{A list of parameters to pass to the linear dimensionality reduction method.}
 
@@ -141,7 +145,7 @@ default is an empty list.}
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
 
-\item{seed}{An integer specifying the random seed for reproducibility.
+\item{seed}{Random seed for reproducibility.
 Default is \code{11}.}
 }
 \description{

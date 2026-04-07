@@ -18,10 +18,10 @@ FeatureStatPlot(
   keep_empty = FALSE,
   individual = FALSE,
   plot_type = c("violin", "box", "bar", "dot", "col"),
-  palette = "Paired",
+  palette = "Chinese",
   palcolor = NULL,
   alpha = 1,
-  bg_palette = "Paired",
+  bg_palette = "Chinese",
   bg_palcolor = NULL,
   bg_alpha = 0.2,
   add_box = FALSE,
@@ -74,6 +74,7 @@ FeatureStatPlot(
   ylab = "Expression level",
   legend.position = "right",
   legend.direction = "vertical",
+  legend.title = NULL,
   theme_use = "theme_scop",
   theme_args = list(),
   combine = TRUE,
@@ -89,240 +90,247 @@ FeatureStatPlot(
 
 \item{stat.by}{A character vector specifying the features to plot.}
 
-\item{group.by}{A character vector specifying the groups to group by.
-Default is `NULL`.}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by.}
 
-\item{split.by}{A character vector specifying the variable to split the plot by.
-Default is `NULL`.}
+\item{split.by}{Name of a column in meta.data column to split plot by.
+Default is \code{NULL}.}
 
 \item{bg.by}{A character vector specifying the variable to use as the background color.
-Default is `NULL`.}
+Default is \code{NULL}.}
 
 \item{plot.by}{A character vector specifying how to plot the data, by group or feature.
-Possible values are `"group"` or `"feature"`.
-Default is `"group"`.}
+Possible values are \code{"group"} or \code{"feature"}.
+Default is \code{"group"}.}
 
 \item{fill.by}{A string specifying what to fill the plot by.
-Possible values are `"group"`, `"feature"`, or `"expression"`.
-Default is `"group"`.}
+Possible values are \code{"group"}, \code{"feature"}, or \code{"expression"}.
+Default is \code{"group"}.}
 
-\item{cells}{A character vector specifying the cells to include in the plot.
-Default is `NULL`.}
+\item{cells}{A character vector of cell names to use.
+Default is \code{NULL}.}
 
-\item{layer}{A string specifying which layer of the Seurat object to use.
-Default is `"data"`.}
+\item{layer}{Which layer to use.
+Default is \code{data}.}
 
-\item{assay}{A string specifying which assay to use.
-Default is `NULL`.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{keep_empty}{Whether to keep empty levels in the plot.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{individual}{Whether to create individual plots for each group.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{plot_type}{A string specifying the type of plot to create.
-Possible values are `"violin"`, `"box"`, `"bar"`, `"dot"`, or `"col"`.
-Default is `"violin"`.}
+Possible values are \code{"violin"}, \code{"box"}, \code{"bar"}, \code{"dot"}, or \code{"col"}.
+Default is \code{"violin"}.}
 
-\item{palette}{A string specifying the color palette to use for filling.
-Default is `"Paired"`.}
+\item{palette}{Color palette name.
+Available palettes can be found in \link[thisplot:show_palettes]{thisplot::show_palettes}.
+Default is \code{"Chinese"}.}
 
-\item{palcolor}{A character vector specifying specific colors to use for filling.
-Default is `NULL`.}
+\item{palcolor}{Custom colors used to create a color palette.
+Default is \code{NULL}.}
 
 \item{alpha}{The transparency of the plot.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{bg_palette}{A string specifying the color palette to use for the background.
-Default is `"Paired"`.}
+Default is \code{"Chinese"}.}
 
 \item{bg_palcolor}{A character vector specifying specific colors to use for the background.
-Default is `NULL`.}
+Default is \code{NULL}.}
 
 \item{bg_alpha}{The transparency of the background.
-Default is `0.2`.}
+Default is \code{0.2}.}
 
 \item{add_box}{Whether to add a box plot to the plot.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{box_color}{A string specifying the color of the box plot.
-Default is `"black"`.}
+Default is \code{"black"}.}
 
 \item{box_width}{The width of the box plot.
-Default is `0.1`.}
+Default is \code{0.1}.}
 
 \item{box_ptsize}{The size of the points of the box plot.
-Default is `2`.}
+Default is \code{2}.}
 
 \item{add_point}{Whether to add individual data points to the plot.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{pt.color}{A string specifying the color of the data points.
-Default is `"grey30"`.}
+Default is \code{"grey30"}.}
 
-\item{pt.size}{The size of the data points. If NULL, the size is automatically determined.
-Default is `NULL`.}
+\item{pt.size}{The size of the points in the plot.}
 
 \item{pt.alpha}{The transparency of the data points.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{jitter.width}{The width of the jitter.
-Default is `0.5`.}
+Default is \code{0.5}.}
 
 \item{jitter.height}{The height of the jitter.
-Default is `0.1`.}
+Default is \code{0.1}.}
 
 \item{add_trend}{Whether to add a trend line to the plot.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{trend_color}{A string specifying the color of the trend line.
-Default is `"black"`.}
+Default is \code{"black"}.}
 
 \item{trend_linewidth}{The width of the trend line.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{trend_ptsize}{The size of the points of the trend line.
-Default is `2`.}
+Default is \code{2}.}
 
 \item{add_stat}{A string specifying which statistical summary to add to the plot.
-Possible values are `"none"`, `"mean"`, or `"median"`.
-Default is `"none"`.}
+Possible values are \code{"none"}, \code{"mean"}, or \code{"median"}.
+Default is \code{"none"}.}
 
 \item{stat_color}{A string specifying the color of the statistical summary.
-Default is `"black"`.}
+Default is \code{"black"}.}
 
 \item{stat_size}{The size of the statistical summary.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{stat_stroke}{The stroke width of the statistical summary.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{stat_shape}{The shape of the statistical summary.
-Default is `25`.}
+Default is \code{25}.}
 
 \item{add_line}{The y-intercept for adding a horizontal line.
-Default is `NULL`.}
+Default is \code{NULL}.}
 
 \item{line_color}{A string specifying the color of the horizontal line.
-Default is `"red"`.}
+Default is \code{"red"}.}
 
 \item{line_size}{The width of the horizontal line.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{line_type}{The type of the horizontal line.
-Default is `1`.}
+Default is \code{1}.}
 
-\item{cells.highlight}{A logical or character vector specifying the cells to highlight in the plot. If TRUE, all cells are highlighted. If FALSE, no cells are highlighted.
-Default is `NULL`.}
+\item{cells.highlight}{A logical or character vector specifying the cells to highlight in the plot.
+If \code{TRUE}, all cells are highlighted. If \code{FALSE}, no cells are highlighted.
+Default is \code{NULL}.}
 
 \item{cols.highlight}{A string specifying the color of the highlighted cells.
-Default is `"red"`.}
+Default is \code{"red"}.}
 
 \item{sizes.highlight}{The size of the highlighted cells.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{alpha.highlight}{The transparency of the highlighted cells.
-Default is `1`.}
+Default is \code{1}.}
 
 \item{calculate_coexp}{Whether to calculate co-expression values.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{same.y.lims}{Whether to use the same y-axis limits for all plots.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
-\item{y.min}{A numeric or character value specifying the minimum y-axis limit. If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit.
-Default is `NULL`.}
+\item{y.min}{A numeric or character value specifying the minimum y-axis limit.
+If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit.
+Default is \code{NULL}.}
 
-\item{y.max}{A numeric or character value specifying the maximum y-axis limit. If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit.
-Default is `NULL`.}
+\item{y.max}{A numeric or character value specifying the maximum y-axis limit.
+If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit.
+Default is \code{NULL}.}
 
 \item{y.trans}{A string specifying the transformation to apply to the y-axis.
-Possible values are `"identity"` or `"log2"`.
-Default is `"identity"`.}
+Possible values are \code{"identity"} or \code{"log2"}.
+Default is \code{"identity"}.}
 
 \item{y.nbreaks}{A number of breaks to use for the y-axis.
-Default is `5`.}
+Default is \code{5}.}
 
-\item{sort}{A logical or character value specifying whether to sort the groups on the x-axis. If TRUE, groups are sorted in increasing order. If FALSE, groups are not sorted. If "increasing", groups are sorted in increasing order. If "decreasing", groups are sorted in decreasing order.
-Default is `FALSE`.}
+\item{sort}{A logical or character value specifying whether to sort the groups on the x-axis.
+If \code{TRUE}, groups are sorted in increasing order. If FALSE, groups are not sorted.
+If \code{"increasing"}, groups are sorted in increasing order.
+If \code{"decreasing"}, groups are sorted in decreasing order.
+Default is \code{FALSE}.}
 
 \item{stack}{A logical specifying whether to stack the plots on top of each other.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{flip}{A logical specifying whether to flip the plot vertically.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
-\item{comparisons}{A list of length-2 vectors. The entries in the vector are either the names of 2 values on the x-axis or the 2 integers that correspond to the index of the groups of interest, to be compared.}
+\item{comparisons}{A list of length-2 vectors.
+The entries in the vector are either the names of 2 values on the x-axis or the 2 integers that correspond to the index of the groups of interest, to be compared.}
 
 \item{ref_group}{A string specifying the reference group for pairwise comparisons.
-Default is `NULL`.}
+Default is \code{NULL}.}
 
 \item{pairwise_method}{Method to use for pairwise comparisons.
-Default is `"wilcox.test"`.}
+Default is \code{"wilcox.test"}.}
 
 \item{multiplegroup_comparisons}{Whether to add multiple group comparisons to the plot.
-Default is `FALSE`.}
+Default is \code{FALSE}.}
 
 \item{multiple_method}{Method to use for multiple group comparisons.
-Default is `"kruskal.test"`.}
+Default is \code{"kruskal.test"}.}
 
 \item{sig_label}{A string specifying the label to use for significant comparisons.
-Possible values are `"p.signif"` or `"p.format"`.
-Default is `"p.format"`.}
+Possible values are \code{"p.signif"} or \code{"p.format"}.
+Default is \code{"p.format"}.}
 
 \item{sig_labelsize}{The size of the significant comparison labels.
-Default is `3.5`.}
+Default is \code{3.5}.}
 
-\item{aspect.ratio}{The aspect ratio of the plot.
-Default is `NULL`.}
+\item{aspect.ratio}{Aspect ratio of the panel.
+Default is \code{NULL}.}
 
-\item{title}{A string specifying the title of the plot.
-Default is `NULL`.}
+\item{title}{The text for the title.
+Default is \code{NULL}.}
 
-\item{subtitle}{A string specifying the subtitle of the plot.
-Default is `NULL`.}
+\item{subtitle}{The text for the subtitle for the plot which will be displayed below the title.
+Default is \code{NULL}.}
 
-\item{xlab}{A string specifying the label of the x-axis.
-Default is `NULL`.}
+\item{xlab}{The x-axis label of the plot.
+Default is \code{NULL}.}
 
 \item{ylab}{A string specifying the label of the y-axis.
-Default is `"Expression level"`.}
+Default is \code{"Expression level"}.}
 
-\item{legend.position}{A string specifying the position of the legend.
-Possible values are `"right"`, `"left"`, `"top"`, `"bottom"`, or `"none"`.
-Default is `"right"`.}
+\item{legend.position}{The position of legends,
+one of \code{"none"}, \code{"left"}, \code{"right"}, \code{"bottom"}, \code{"top"}.
+Default is \code{"right"}.}
 
-\item{legend.direction}{A string specifying the direction of the legend.
-Possible values are `"vertical"` or `"horizontal"`.
-Default is `"vertical"`.}
+\item{legend.direction}{The direction of the legend in the plot.
+Can be one of \code{"vertical"} or \code{"horizontal"}.}
 
-\item{theme_use}{A string specifying the theme to use for the plot.
-Default is `"theme_scop"`.}
+\item{legend.title}{Title for the legend. Default is \code{NULL}, which uses the group name.}
 
-\item{theme_args}{A list of arguments to pass to the theme function.
-Default is an empty list.}
+\item{theme_use}{Theme used. Can be a character string or a theme function.
+Default is \code{"theme_scop"}.}
 
-\item{combine}{Whether to combine the individual plots into a single plot.
-Default is `TRUE`.}
+\item{theme_args}{Other arguments passed to the \code{theme_use}.
+Default is \code{list()}.}
 
-\item{nrow}{A number of rows for the combined plot.
-Default is `NULL`.}
+\item{combine}{Combine plots into a single \code{patchwork} object.
+If \code{FALSE}, return a list of ggplot objects.}
 
-\item{ncol}{A number of columns for the combined plot.
-Default is `NULL`.}
+\item{nrow}{Number of rows in the combined plot.
+Default is \code{NULL}, which means determined automatically based on the number of plots.}
 
-\item{byrow}{Whether to fill the combined plot by row or by column.
-Default is `TRUE`.}
+\item{ncol}{Number of columns in the combined plot.
+Default is \code{NULL}, which means determined automatically based on the number of plots.}
 
-\item{force}{Whether to force the plot creation even if there are more than 100 levels in a variable.
-Default is `FALSE`.}
+\item{byrow}{Whether to arrange the plots by row in the combined plot.
+Default is \code{TRUE}.}
 
-\item{seed}{An integer specifying the random seed to use for generating jitter.
-Default is `11`.}
+\item{force}{Whether to force drawing regardless of maximum levels in any cell group is greater than 100.
+Default is \code{FALSE}.}
+
+\item{seed}{Random seed for reproducibility.
+Default is \code{11}.}
 }
 \description{
-This function generates a statistical plot for features.
+Statistical plot of features
 }
 \examples{
 data(pancreas_sub)
@@ -458,6 +466,21 @@ FeatureStatPlot(
 
 FeatureStatPlot(
   pancreas_sub,
+  stat.by = "Fev",
+  group.by = "SubCellType",
+  split.by = "Phase",
+  comparisons = TRUE
+) + FeatureStatPlot(
+  pancreas_sub,
+  stat.by = "Fev",
+  group.by = "SubCellType",
+  split.by = "Phase",
+  comparisons = TRUE,
+  y.max = 5
+)
+
+FeatureStatPlot(
+  pancreas_sub,
   stat.by = c("Rbp4", "Pyy"),
   group.by = "SubCellType",
   bg.by = "CellType",
@@ -467,11 +490,16 @@ FeatureStatPlot(
 FeatureStatPlot(
   pancreas_sub,
   stat.by = c(
-    "Sox9", "Anxa2", "Bicc1", # Ductal
-    "Neurog3", "Hes6", # EPs
-    "Fev", "Neurod1", # Pre-endocrine
-    "Rbp4", "Pyy", # Endocrine
-    "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+    # Ductal
+    "Sox9", "Anxa2", "Bicc1",
+    # EPs
+    "Neurog3", "Hes6",
+    # Pre-endocrine
+    "Fev", "Neurod1",
+    # Endocrine
+    "Rbp4", "Pyy",
+    # Beta, Alpha, Delta, Epsilon
+    "Ins1", "Gcg", "Sst", "Ghrl"
   ),
   legend.position = "top",
   legend.direction = "horizontal",
@@ -483,11 +511,16 @@ FeatureStatPlot(
 FeatureStatPlot(
   pancreas_sub,
   stat.by = c(
-    "Sox9", "Anxa2", "Bicc1", # Ductal
-    "Neurog3", "Hes6", # EPs
-    "Fev", "Neurod1", # Pre-endocrine
-    "Rbp4", "Pyy", # Endocrine
-    "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+    # Ductal
+    "Sox9", "Anxa2", "Bicc1",
+    # EPs
+    "Neurog3", "Hes6",
+    # Pre-endocrine
+    "Fev", "Neurod1",
+    # Endocrine
+    "Rbp4", "Pyy",
+    # Beta, Alpha, Delta, Epsilon
+    "Ins1", "Gcg", "Sst", "Ghrl"
   ),
   fill.by = "feature",
   plot_type = "box",
@@ -496,8 +529,6 @@ FeatureStatPlot(
 ) |> thisplot::panel_fix_overall(
   width = 8, height = 5
 )
-# As the plot is created by combining,
-# we can adjust the overall height and width directly.
 
 FeatureStatPlot(
   pancreas_sub,
@@ -528,18 +559,27 @@ FeatureStatPlot(
   stat.by = c("Neurog3", "Rbp4", "Ins1"),
   group.by = "CellType",
   plot.by = "feature",
-  comparisons = list(c("Neurog3", "Rbp4"), c("Rbp4", "Ins1")),
+  comparisons = list(
+    c("Neurog3", "Rbp4"),
+    c("Rbp4", "Ins1")
+  ),
   stack = TRUE
 )
 
 FeatureStatPlot(pancreas_sub,
   stat.by = c(
-    "Sox9", "Anxa2", "Bicc1", # Ductal
-    "Neurog3", "Hes6", # EPs
-    "Fev", "Neurod1", # Pre-endocrine
-    "Rbp4", "Pyy", # Endocrine
-    "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
-  ), group.by = "SubCellType",
+    # Ductal
+    "Sox9", "Anxa2", "Bicc1",
+    # EPs
+    "Neurog3", "Hes6",
+    # Pre-endocrine
+    "Fev", "Neurod1",
+    # Endocrine
+    "Rbp4", "Pyy",
+    # Beta, Alpha, Delta, Epsilon
+    "Ins1", "Gcg", "Sst", "Ghrl"
+  ),
+  group.by = "SubCellType",
   plot.by = "feature",
   stack = TRUE
 )
@@ -564,4 +604,7 @@ FeatureStatPlot(
   same.y.lims = TRUE,
   y.max = 4
 )
+}
+\seealso{
+\link{CellStatPlot}
 }

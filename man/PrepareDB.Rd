@@ -28,10 +28,10 @@ PrepareDB(
 }
 \arguments{
 \item{species}{A character vector specifying the species for which the gene annotation databases should be prepared.
-Default is \code{c("Homo_sapiens", "Mus_musculus")}.}
+Can be \code{"Homo_sapiens"} or \code{"Mus_musculus"}.}
 
 \item{db}{A character vector specifying the annotation sources to be included in the gene annotation databases.
-Default is \code{c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "CORUM", "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellTalk", "CellChat", "Chromosome", "GeneType", "Enzyme", "TF")}.}
+Can be one or more of \verb{"GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "CORUM", "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellTalk", "CellChat", "Chromosome", "GeneType", "Enzyme", "TF"}.}
 
 \item{db_IDtypes}{A character vector specifying the desired ID types to be used for gene identifiers in the gene annotation databases.
 Default is \code{c("symbol", "entrez_id", "ensembl_id")}.}
@@ -44,9 +44,10 @@ If set to FALSE, the function will attempt to load the cached databases instead.
 Default is \code{FALSE}.}
 
 \item{convert_species}{Whether to use a species-converted database when the annotation is missing for the specified species.
-The default value is \code{TRUE}.}
+Default is \code{TRUE}.}
 
-\item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
+\item{Ensembl_version}{An integer specifying the Ensembl version.
+Default is \code{NULL}. If \code{NULL}, the latest version will be used.}
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are \code{"www"}, \code{"uswest"}, \code{"useast"}, \code{"asia"}.}
 
@@ -76,20 +77,15 @@ Default is \code{TRUE}.}
 \value{
 A list containing the prepared gene annotation databases:
 \itemize{
-\item \code{TERM2GENE:} mapping of gene identifiers to terms.
-\item \code{TERM2NAME:} mapping of terms to their names.
-\item \code{semData:} semantic similarity data for gene sets (only for Gene Ontology terms).
+\item \code{TERM2GENE}: mapping of gene identifiers to terms.
+\item \code{TERM2NAME}: mapping of terms to their names.
+\item \code{semData}: semantic similarity data for gene sets (only for Gene Ontology terms).
 }
 }
 \description{
 This function prepares the gene annotation databases for a given species and set of annotation sources.
 It retrieves the necessary information from various annotation packages or external resources and organizes it into a list.
 The list contains the annotation data for each specified annotation source.
-}
-\details{
-The \code{PrepareDB} function prepares gene annotation databases for a given species and set of annotation sources.
-It retrieves the necessary information from various annotation packages or external resources and organizes it into a list.
-The function also supports creating custom databases based on user-provided gene sets.
 }
 \examples{
 \dontrun{

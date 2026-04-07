@@ -62,7 +62,7 @@ GroupHeatmap(
   db_update = FALSE,
   db_version = "latest",
   db_combine = FALSE,
-  convert_species = FALSE,
+  convert_species = TRUE,
   Ensembl_version = NULL,
   mirror = NULL,
   db = "GO_BP",
@@ -96,14 +96,14 @@ GroupHeatmap(
   fill_palcolor = NULL,
   heatmap_palette = "RdBu",
   heatmap_palcolor = NULL,
-  group_palette = "Paired",
+  group_palette = "Chinese",
   group_palcolor = NULL,
   cell_split_palette = "simspec",
   cell_split_palcolor = NULL,
   feature_split_palette = "simspec",
   feature_split_palcolor = NULL,
   cell_annotation = NULL,
-  cell_annotation_palette = "Paired",
+  cell_annotation_palette = "Chinese",
   cell_annotation_palcolor = NULL,
   cell_annotation_params = if (flip) {
      list(width = grid::unit(10, "mm"))
@@ -126,6 +126,7 @@ GroupHeatmap(
   height = NULL,
   width = NULL,
   units = "inch",
+  cores = 1,
   seed = 11,
   ht_params = list(),
   verbose = TRUE,
@@ -135,13 +136,12 @@ GroupHeatmap(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{features}{The features to include in the heatmap.
+\item{features}{A character vector of features to use.
 Default is \code{NULL}.}
 
-\item{group.by}{A character vector specifying the groups to group by.
-Default is \code{NULL}.}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by.}
 
-\item{split.by}{A character vector specifying the variable to split the heatmap by.
+\item{split.by}{Name of a column in meta.data column to split plot by.
 Default is \code{NULL}.}
 
 \item{within_groups}{Whether to create separate heatmap scales for each group or within each group.
@@ -153,13 +153,13 @@ Default is \code{NULL}.}
 \item{numerator}{A character vector specifying the value to use as the numerator in the grouping.var grouping.
 Default is \code{NULL}.}
 
-\item{cells}{A character vector specifying the cells to include in the heatmap.
+\item{cells}{A character vector of cell names to use.
 Default is \code{NULL}.}
 
 \item{aggregate_fun}{A function to use for aggregating data within groups.
 Default is \link[base:mean]{base::mean}.}
 
-\item{exp_cutoff}{The threshold for cell counting if \code{add_dot} is TRUE.
+\item{exp_cutoff}{The threshold for cell counting if \code{add_dot} is \code{TRUE}.
 Default is \code{0}.}
 
 \item{border}{Whether to add a border to the heatmap.
@@ -168,11 +168,11 @@ Default is \code{TRUE}.}
 \item{flip}{Whether to flip the heatmap.
 Default is \code{FALSE}.}
 
-\item{layer}{A character vector specifying the layer in the Seurat object to use.
+\item{layer}{Which layer to use.
 Default is \code{"counts"}.}
 
-\item{assay}{A character vector specifying the assay in the Seurat object to use.
-Default is \code{NULL}.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{exp_method}{A character vector specifying the method for calculating expression values.
 Options are \code{"zscore"}, \code{"raw"}, \code{"fc"}, \code{"log2fc"}, or \code{"log1p"}.
@@ -292,20 +292,21 @@ Default is \code{"symbol"}.}
 \item{species}{A character vector specifying the species for features.
 Default is \code{"Homo_sapiens"}.}
 
-\item{db_update}{Whether to update the database.
+\item{db_update}{Whether the gene annotation databases should be forcefully updated.
+If set to FALSE, the function will attempt to load the cached databases instead.
 Default is \code{FALSE}.}
 
-\item{db_version}{A character vector specifying the version of the database.
+\item{db_version}{A character vector specifying the version of the gene annotation databases to be retrieved.
 Default is \code{"latest"}.}
 
 \item{db_combine}{Whether to use a combined database.
 Default is \code{FALSE}.}
 
-\item{convert_species}{Whether to use a species-converted database if annotation is missing for \code{species}.
-Default is \code{FALSE}.}
+\item{convert_species}{Whether to use a species-converted database when the annotation is missing for the specified species.
+Default is \code{TRUE}.}
 
 \item{Ensembl_version}{An integer specifying the Ensembl version.
-Default is \code{103}.}
+Default is \code{NULL}. If \code{NULL}, the latest version will be used.}
 
 \item{mirror}{A character vector specifying the mirror for the Ensembl database.
 Default is \code{NULL}.}
@@ -356,7 +357,7 @@ Default is \code{20}.}
 Default is \code{NULL}.}
 
 \item{nlabel}{A number of labels to include.
-Default is \code{0}.}
+Default is \code{20}.}
 
 \item{features_label}{A character vector specifying the features to label.
 Default is \code{NULL}.}
@@ -406,7 +407,7 @@ Default is \code{"RdBu"}.}
 Default is \code{NULL}.}
 
 \item{group_palette}{A character vector specifying the palette to use for groups.
-Default is \code{"Paired"}.}
+Default is \code{"Chinese"}.}
 
 \item{group_palcolor}{A character vector specifying the group color to use.
 Default is \code{NULL}.}
@@ -428,7 +429,7 @@ Default is \code{NULL}.}
 
 \item{cell_annotation_palette}{A character vector specifying the palette to use for cell annotations.
 The length of the vector should match the number of cell_annotation.
-Default is \code{"Paired"}.}
+Default is \code{"Chinese"}.}
 
 \item{cell_annotation_palcolor}{A list of character vector specifying the cell annotation color(s) to use.
 The length of the list should match the number of cell_annotation.
@@ -449,7 +450,7 @@ The length of the list should match the number of feature_annotation.
 Default is \code{NULL}.}
 
 \item{feature_annotation_params}{A list specifying additional parameters for feature annotations.
-Default is an empty list.}
+Default is \code{list()}.}
 
 \item{use_raster}{Whether to use a raster device for plotting.
 Default is \code{NULL}.}
@@ -460,20 +461,25 @@ Default is \code{"png"}.}
 \item{raster_by_magick}{Whether to use the 'magick' package for raster.
 Default is \code{FALSE}.}
 
-\item{height}{A numeric vector specifying the height(s) of the heatmap body.
-Default is \code{NULL}.}
+\item{height}{The height of the heatmap in the specified units.
+If not provided, the height will be automatically determined based on the number of rows in the heatmap and the default unit.}
 
-\item{width}{A numeric vector specifying the width(s) of the heatmap body.
-Default is \code{NULL}.}
+\item{width}{The width of the heatmap in the specified units.
+If not provided, the width will be automatically determined based on the number of columns in the heatmap and the default unit.}
 
-\item{units}{A character vector specifying the units for the height and width.
-Default is \code{"inch"}.}
+\item{units}{The units to use for the width and height of the heatmap.
+Default is \code{"inch"}, Options are \code{"mm"}, \code{"cm"}, or \code{"inch"}.}
 
-\item{seed}{An integer specifying the random seed.
+\item{cores}{The number of cores to use for parallelization with \link[foreach:foreach]{foreach::foreach}.
+Default is \code{1}.}
+
+\item{seed}{Random seed for reproducibility.
 Default is \code{11}.}
 
-\item{ht_params}{A list specifying additional parameters passed to the \link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap} function.
-Default is an empty list.}
+\item{ht_params}{Additional parameters to customize the appearance of the heatmap.
+This should be a list with named elements, where the names correspond to parameter names in the \link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap} function.
+Any conflicting parameters will override the defaults set by this function.
+Default is \code{list()}.}
 
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
@@ -483,12 +489,12 @@ Default is \code{TRUE}.}
 \value{
 A list with the following elements:
 \itemize{
-\item \code{plot:} The heatmap plot.
-\item \code{matrix_list:} A list of matrix for each \code{group.by} used in the heatmap.
-\item \code{feature_split:} NULL or a factor if splitting is performed in the heatmap.
-\item \code{cell_metadata:} Meta data of cells used to generate the heatmap.
-\item \code{feature_metadata:} Meta data of features used to generate the heatmap.
-\item \code{enrichment:} NULL or a enrichment result generated by \link{RunEnrichment} when any of the parameters \code{anno_terms}, \code{anno_keys}, or \code{anno_features} is set to TRUE.
+\item \code{plot}: The heatmap plot.
+\item \code{matrix_list}: A list of matrix for each \code{group.by} used in the heatmap.
+\item \code{feature_split}: NULL or a factor if splitting is performed in the heatmap.
+\item \code{cell_metadata}: Meta data of cells used to generate the heatmap.
+\item \code{feature_metadata}: Meta data of features used to generate the heatmap.
+\item \code{enrichment}: NULL or a enrichment result generated by \link{RunEnrichment} when any of the parameters \code{anno_terms}, \code{anno_keys}, or \code{anno_features} is set to \code{TRUE}.
 }
 }
 \description{
@@ -519,8 +525,6 @@ thisplot::panel_fix(
   dpi = 50
 )
 
-\dontrun{
-library(dplyr)
 pancreas_sub <- AnnotateFeatures(
   pancreas_sub,
   species = "Mus_musculus",
@@ -528,9 +532,9 @@ pancreas_sub <- AnnotateFeatures(
 )
 pancreas_sub <- RunDEtest(
   pancreas_sub,
-  group_by = "CellType"
+  group.by = "CellType"
 )
-de_filter <- filter(
+de_filter <- dplyr::filter(
   pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox,
   p_val_adj < 0.05 & avg_log2FC > 1
 )
@@ -559,11 +563,11 @@ ht3 <- GroupHeatmap(
 )
 ht3$plot
 
-de_top <- de_filter \%>\%
-  group_by(gene) \%>\%
-  top_n(1, avg_log2FC) \%>\%
-  group_by(group1) \%>\%
-  top_n(3, avg_log2FC)
+de_top <- de_filter |>
+  dplyr::group_by(gene) |>
+  dplyr::top_n(1, avg_log2FC) |>
+  dplyr::group_by(group1) |>
+  dplyr::top_n(3, avg_log2FC)
 ht4 <- GroupHeatmap(
   pancreas_sub,
   features = de_top$gene,
@@ -574,7 +578,7 @@ ht4 <- GroupHeatmap(
     "Phase", "G2M_score", "Neurod2"
   ),
   cell_annotation_palette = c(
-    "Dark2", "Paired", "Paired"
+    "Dark2", "Chinese", "Chinese"
   ),
   cell_annotation_params = list(
     height = grid::unit(10, "mm")
@@ -601,7 +605,7 @@ ht5 <- GroupHeatmap(
     "Phase", "G2M_score", "Neurod2"
   ),
   cell_annotation_palette = c(
-    "Dark2", "Paired", "Paired"
+    "Dark2", "Chinese", "Chinese"
   ),
   cell_annotation_params = list(
     width = grid::unit(10, "mm")
@@ -666,7 +670,6 @@ ht8 <- GroupHeatmap(
   )
 )
 ht8$plot
-}
 }
 \seealso{
 \link{RunDEtest}

@@ -5,24 +5,19 @@
 #' The plot shows the velocity vectors of the cells in a specified reduction space.
 #'
 #' @md
-#' @param srt A Seurat object.
-#' @param reduction Name of the reduction in the Seurat object to use for plotting.
-#' @param dims Indices of the dimensions to use for plotting.
-#' @param cells Cells to include in the plot.
-#' If `NULL`, all cells will be included.
+#' @inheritParams CellDimPlot
+#' @inheritParams thisplot::GraphPlot
 #' @param velocity Name of the velocity to use for plotting.
 #' Default is `"stochastic"`.
 #' @param plot_type Type of plot to create.
 #' Can be `"raw"`, `"grid"`, or `"stream"`.
-#' @param group_by Name of the column in the Seurat object metadata to group the cells by.
-#' Defaults is `NULL`.
 #' @param group_palette Name of the palette to use for coloring the groups.
-#' Defaults is `"Paired"`.
+#' Defaults is `"Chinese"`.
 #' @param group_palcolor Colors to use for coloring the groups.
 #' Defaults is `NULL`.
 #' @param n_neighbors Number of neighbors to include for the density estimation.
 #' Defaults is `ceiling(ncol(srt@assays[[1]]) / 50)`.
-#' @param density Propotion of cells to plot.
+#' @param density Proportion of cells to plot.
 #' Defaults is `1` (plot all cells).
 #' @param smooth Smoothing parameter for density estimation.
 #' Defaults is `0.5`.
@@ -58,28 +53,8 @@
 #' Defaults is `"white"`.
 #' @param streamline_bg_stroke Stroke width of the streamlines background.
 #' Defaults is `0.5`.
-#' @param aspect.ratio Aspect ratio of the plot.
-#' Defaults is `1`.
-#' @param title Title of the plot.
+#' @param title The text for the title.
 #' Defaults is `"Cell velocity"`.
-#' @param subtitle Subtitle of the plot.
-#' Defaults is `NULL`.
-#' @param xlab x-axis label.
-#' Defaults is `NULL`.
-#' @param ylab y-axis label.
-#' Defaults is `NULL`.
-#' @param legend.position Position of the legend.
-#' Defaults is `"right"`.
-#' @param legend.direction Direction of the legend.
-#' Defaults is `"vertical"`.
-#' @param theme_use Name of the theme to use for plotting.
-#' Defaults is `"theme_scop"`.
-#' @param theme_args List of theme arguments for customization.
-#' Defaults is `list()`.
-#' @param return_layer Whether to return the plot layers as a list.
-#' Defaults is `FALSE`.
-#' @param seed Random seed for reproducibility.
-#' Defaults is `11`.
 #'
 #' @seealso
 #' [RunSCVELO], [CellDimPlot]
@@ -92,44 +67,44 @@
 #' pancreas_sub <- standard_scop(pancreas_sub)
 #' pancreas_sub <- RunSCVELO(
 #'   pancreas_sub,
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   linear_reduction = "pca",
 #'   nonlinear_reduction = "umap",
 #'   return_seurat = TRUE
 #' )
 #' VelocityPlot(
 #'   pancreas_sub,
-#'   reduction = "UMAP"
+#'   reduction = "umap"
 #' )
 #'
 #' VelocityPlot(
 #'   pancreas_sub,
-#'   reduction = "UMAP",
-#'   group_by = "SubCellType"
+#'   reduction = "umap",
+#'   group.by = "SubCellType"
 #' )
 #'
 #' VelocityPlot(
 #'   pancreas_sub,
-#'   reduction = "UMAP",
+#'   reduction = "umap",
 #'   plot_type = "grid"
 #' )
 #'
 #' VelocityPlot(
 #'   pancreas_sub,
-#'   reduction = "UMAP",
+#'   reduction = "umap",
 #'   plot_type = "stream"
 #' )
 #'
 #' VelocityPlot(
 #'   pancreas_sub,
-#'   reduction = "UMAP",
+#'   reduction = "umap",
 #'   plot_type = "stream",
 #'   streamline_color = "black"
 #' )
 #'
 #' VelocityPlot(
 #'   pancreas_sub,
-#'   reduction = "UMAP",
+#'   reduction = "umap",
 #'   plot_type = "stream",
 #'   streamline_color = "black",
 #'   arrow_color = "red"
@@ -142,8 +117,8 @@ VelocityPlot <- function(
     cells = NULL,
     velocity = "stochastic",
     plot_type = c("raw", "grid", "stream"),
-    group_by = NULL,
-    group_palette = "Paired",
+    group.by = NULL,
+    group_palette = "Chinese",
     group_palcolor = NULL,
     n_neighbors = ceiling(ncol(srt@assays[[1]]) / 50),
     density = 1,
@@ -235,16 +210,16 @@ VelocityPlot <- function(
       mean(df_field[["length_perc"]], na.rm = TRUE), "npc"
     )
 
-    if (!is.null(group_by)) {
-      df_field[["group_by"]] <- srt@meta.data[
+    if (!is.null(group.by)) {
+      df_field[["group.by"]] <- srt@meta.data[
         rownames(df_field),
-        group_by,
+        group.by,
         drop = TRUE
       ]
       velocity_layer <- list(
         geom_segment(
           data = df_field,
-          aes(x = x, y = y, xend = x + u, yend = y + v, color = group_by),
+          aes(x = x, y = y, xend = x + u, yend = y + v, color = group.by),
           arrow = grid::arrow(
             length = arrow_length,
             type = "closed",
@@ -255,9 +230,9 @@ VelocityPlot <- function(
           inherit.aes = FALSE
         ),
         scale_color_manual(
-          name = group_by,
+          name = group.by,
           values = palette_colors(
-            df_field[["group_by"]],
+            df_field[["group.by"]],
             palette = group_palette,
             palcolor = group_palcolor
           ),
@@ -328,7 +303,7 @@ VelocityPlot <- function(
     )
   }
   if (plot_type == "stream") {
-    check_r("metR")
+    check_r("metR", verbose = FALSE)
     res <- compute_velocity_on_grid(
       x_emb,
       v_emb,
@@ -506,128 +481,4 @@ VelocityPlot <- function(
         theme_layer
     )
   }
-}
-
-#' @title Compute velocity on grid
-#'
-#' @md
-#' @param x_emb A matrix of dimension n_obs x n_dim specifying the embedding coordinates of the cells.
-#' @param v_emb A matrix of dimension n_obs x n_dim specifying the velocity vectors of the cells.
-#' @param density A numeric value specifying the density of the grid points along each dimension.
-#' Default is `1`.
-#' @param smooth A numeric value specifying the smoothing factor for the velocity vectors.
-#' Default is `0.5`.
-#' @param n_neighbors A numeric value specifying the number of nearest neighbors for each grid point.
-#' Default is `ceiling(n_obs / 50)`.
-#' @param min_mass A numeric value specifying the minimum mass required for a grid point to be considered.
-#' Default is `1`.
-#' @param scale A numeric value specifying the scaling factor for the velocity vectors.
-#' Default is `1`.
-#' @param adjust_for_stream Whether to adjust the velocity vectors for streamlines.
-#' Default is `FALSE`.
-#' @param cutoff_perc A numeric value specifying the percentile cutoff for removing low-density grid points.
-#' Default is `5`.
-#'
-#' @references
-#' \url{https://github.com/theislab/scvelo/blob/master/scvelo/plotting/velocity_embedding_grid.py}
-#'
-#' @export
-compute_velocity_on_grid <- function(
-    x_emb,
-    v_emb,
-    density = 1,
-    smooth = 0.5,
-    n_neighbors = ceiling(n_obs / 50),
-    min_mass = 1,
-    scale = 1,
-    adjust_for_stream = FALSE,
-    cutoff_perc = 5) {
-  n_obs <- nrow(x_emb)
-  n_dim <- ncol(x_emb)
-
-  grs <- list()
-  for (dim_i in 1:n_dim) {
-    m1 <- min(x_emb[, dim_i], na.rm = TRUE)
-    m2 <- max(x_emb[, dim_i], na.rm = TRUE)
-    # m1 <- m1 - 0.01 * abs(m2 - m1)
-    # m2 <- m2 + 0.01 * abs(m2 - m1)
-    gr <- seq(m1, m2, length.out = ceiling(50 * density))
-    grs <- c(grs, list(gr))
-  }
-  x_grid <- as_matrix(expand.grid(grs))
-
-  d <- proxyC::dist(
-    x = SeuratObject::as.sparse(x_emb),
-    y = SeuratObject::as.sparse(x_grid),
-    method = "euclidean",
-    use_nan = TRUE
-  )
-  neighbors <- Matrix::t(
-    as_matrix(
-      apply(
-        d,
-        2,
-        function(x) {
-          order(x, decreasing = FALSE)[1:n_neighbors]
-        }
-      )
-    )
-  )
-  dists <- Matrix::t(
-    as_matrix(
-      apply(
-        d,
-        2,
-        function(x) {
-          x[order(x, decreasing = FALSE)[1:n_neighbors]]
-        }
-      )
-    )
-  )
-
-  weight <- stats::dnorm(
-    dists,
-    sd = mean(sapply(grs, function(g) g[2] - g[1])) * smooth
-  )
-  p_mass <- p_mass_v <- Matrix::rowSums(weight)
-  p_mass_v[p_mass_v < 1] <- 1
-
-  neighbors_emb <- array(
-    v_emb[neighbors, seq_len(ncol(v_emb))],
-    dim = c(dim(neighbors), dim(v_emb)[2])
-  )
-  v_grid <- apply((neighbors_emb * c(weight)), c(1, 3), sum)
-  v_grid <- v_grid / p_mass_v
-
-  if (isTRUE(adjust_for_stream)) {
-    x_grid <- matrix(
-      c(unique(x_grid[, 1]), unique(x_grid[, 2])),
-      nrow = 2,
-      byrow = TRUE
-    )
-    ns <- floor(sqrt(length(v_grid[, 1])))
-    v_grid <- reticulate::array_reshape(Matrix::t(v_grid), c(2, ns, ns))
-
-    mass <- sqrt(apply(v_grid**2, c(2, 3), sum))
-    min_mass <- 10**(min_mass - 6) # default min_mass = 1e-5
-    min_mass[min_mass > max(mass, na.rm = TRUE) * 0.9] <- max(
-      mass,
-      na.rm = TRUE
-    ) *
-      0.9
-    cutoff <- reticulate::array_reshape(mass, dim = c(ns, ns)) < min_mass
-
-    length <- Matrix::t(apply(apply(abs(neighbors_emb), c(1, 3), mean), 1, sum))
-    length <- reticulate::array_reshape(length, dim = c(ns, ns))
-    cutoff <- cutoff | length < stats::quantile(length, cutoff_perc / 100)
-    v_grid[1, , ][cutoff] <- NA
-  } else {
-    min_mass <- min_mass * stats::quantile(p_mass, 0.99) / 100
-    x_grid <- x_grid[p_mass > min_mass, ]
-    v_grid <- v_grid[p_mass > min_mass, ]
-    if (!is.null(scale)) {
-      v_grid <- v_grid * scale
-    }
-  }
-  return(list(x_grid = x_grid, v_grid = v_grid))
 }

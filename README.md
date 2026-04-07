@@ -2,60 +2,72 @@
 
 <!-- badges: start -->
 
-[![develop-ver](https://img.shields.io/github/r-package/v/mengxu98/scop?label=develop-ver)](https://github.com/mengxu98/scop/blob/main/DESCRIPTION) [![pkgdown](https://github.com/mengxu98/scop/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/mengxu98/scop/actions/workflows/pkgdown.yaml) [![codesize](https://img.shields.io/github/languages/code-size/mengxu98/scop.svg)](https://github.com/mengxu98/scop) [![stars](https://img.shields.io/github/stars/mengxu98/scop?style=flat&logo=github)](https://github.com/mengxu98/scop) [![license](https://img.shields.io/github/license/mengxu98/scop)](https://github.com/mengxu98/scop/blob/main/LICENSE.md) 
+[![version](https://img.shields.io/github/r-package/v/mengxu98/scop?label=version&color=blue)](https://github.com/mengxu98/scop/blob/main/DESCRIPTION) [![pkgdown](https://github.com/mengxu98/scop/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/mengxu98/scop/actions/workflows/pkgdown.yaml) [![stars](https://img.shields.io/github/stars/mengxu98/scop?style=flat&logo=github)](https://github.com/mengxu98/scop) [![issues](https://img.shields.io/github/issues/mengxu98/scop?color=%23ff0000)](https://github.com/mengxu98/scop/issues) [![issues-closed](https://img.shields.io/github/issues-closed/mengxu98/scop?color=brightgreen)](https://github.com/mengxu98/scop/issues?q=is%3Aissue+is%3Aclosed) [![license](https://img.shields.io/github/license/mengxu98/scop?color=%23bd0000)](https://github.com/mengxu98/scop/blob/main/LICENSE.md) 
 
 <!-- badges: end -->
 
-## Overview
-The [scop](https://github.com/mengxu98/scop) package provides a comprehensive set of tools for single-cell omics data processing and downstream analysis.
-
 ## Introduction
-The [scop](https://github.com/mengxu98/scop) package includes the following facilities:
+The [scop](https://github.com/mengxu98/scop) package provides a unified and extensible framework for single-cell omics data processing and downstream analysis in [Seurat](https://github.com/satijalab/seurat):
 
-- Integrated single-cell quality control methods.
-- Pipelines embedded with multiple methods for normalization, feature reduction, and cell population identification (standard Seurat workflow).
-- Pipelines embedded with multiple integration methods for scRNA-seq or scATAC-seq data, including Uncorrected, [Seurat](https://github.com/satijalab/seurat), [scVI](https://github.com/scverse/scvi-tools), [MNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [fastMNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [Harmony](https://github.com/immunogenomics/harmony), [Scanorama](https://github.com/brianhie/scanorama), [BBKNN](https://github.com/Teichlab/bbknn), [CSS](https://github.com/quadbiolab/simspec), [LIGER](https://github.com/welch-lab/liger), [Conos](https://github.com/kharchenkolab/conos), [ComBat](https://bioconductor.org/packages/release/bioc/html/sva.html).
-- Multiple single-cell downstream analyses such as identification of differential features, enrichment analysis, GSEA analysis, identification of dynamic features, [PAGA](https://github.com/theislab/paga), [RNA velocity](https://github.com/theislab/scvelo), [Palantir](https://github.com/dpeerlab/Palantir), etc.
-- Multiple methods for automatic annotation of single-cell data and methods for projection between single-cell datasets.
+- Integrated single-cell quality control methods, including doublet detection methods ([scDblFinder](https://github.com/plger/scDblFinder), [scds](https://github.com/kostkalab/scds), [Scrublet](https://github.com/swolock/scrublet), [DoubletDetection](https://github.com/JonathanShor/DoubletDetection)) and ambient RNA decontamination via [decontX](https://github.com/campbio/decontX).
+- Pipelines embedded with multiple methods for normalization, feature reduction (PCA, ICA, NMF, MDS, [GLMPCA](https://github.com/willtownes/glmpca), [UMAP](https://github.com/lmcinnes/umap), [TriMap](https://github.com/eamid/trimap), [LargeVis](https://github.com/lferry007/LargeVis), [PaCMAP](https://github.com/YingfanWang/PaCMAP), [PHATE](https://github.com/KrishnaswamyLab/PHATE), [DM](https://bioconductor.org/packages/release/bioc/html/destiny.html), FR), and cell population identification.
+- Pipelines embedded with multiple integration methods for scRNA-seq, including Uncorrected, [Seurat](https://github.com/satijalab/seurat), [scVI](https://github.com/scverse/scvi-tools), [MNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [fastMNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [Harmony](https://github.com/immunogenomics/harmony), [Scanorama](https://github.com/brianhie/scanorama), [BBKNN](https://github.com/Teichlab/bbknn), [CSS](https://github.com/quadbiolab/simspec), [Coralysis](https://github.com/elolab/Coralysis), [LIGER](https://github.com/welch-lab/liger), [Conos](https://github.com/kharchenkolab/conos), [ComBat](https://bioconductor.org/packages/release/bioc/html/sva.html).
+- Multiple methods for automatic annotation of single-cell data ([CellTypist](https://github.com/Teichlab/celltypist), [SingleR](https://github.com/dviraran/SingleR), [Scmap](https://github.com/hemberg-lab/scmap), KNNPredict) and methods for projection between single-cell datasets (CSSMap, PCAMap, SeuratMap, [SymphonyMap](https://github.com/immunogenomics/symphony)).
+- Multiple single-cell downstream analyses:
+  - Differential expression analysis: identification of differential features, expressed marker identification.
+  - Enrichment analysis: over-representation analysis, [GSEA](https://www.gsea-msigdb.org/gsea/index.jsp) analysis, dynamic enrichment analysis.
+  - Cellular potency: [CytoTRACE 2](https://github.com/digitalcytometry/cytotrace2) for predicting cellular differentiation potential.
+  - RNA velocity: [RNA velocity](https://github.com/theislab/scvelo), [PAGA](https://github.com/theislab/paga), [Palantir](https://github.com/dpeerlab/Palantir), [CellRank](https://github.com/theislab/cellrank), [WOT](https://github.com/broadinstitute/wot).
+  - Trajectory inference: [Slingshot](https://bioconductor.org/packages/release/bioc/html/slingshot.html), [Monocle2](https://github.com/mengxu98/monocle), [Monocle3](https://github.com/cole-trapnell-lab/monocle3), identification of dynamic features.
+  - Cell-Cell Communication: [CellChat](https://github.com/jinworks/CellChat), [CellphoneDB](https://github.com/ventolab/CellphoneDB), [NicheNet](https://github.com/saeyslab/nichenetr), and [MultiNicheNet](https://github.com/saeyslab/multinichenetr).
 - High-quality data visualization methods.
 - Fast deployment of single-cell data into SCExplorer, a [shiny](https://shiny.rstudio.com/) app that provides an interactive visualization interface.
 
-The functions in the scop package are all developed around the [Seurat](https://github.com/satijalab/seurat-object) object and are compatible with other Seurat functions.
-
-## Quick Start
+## Table of Contents
 
 - [scop: Single-Cell Omics analysis Pipeline](#scop-single-cell-omics-analysis-pipeline)
-  - [Overview](#overview)
   - [Introduction](#introduction)
-  - [Quick Start](#quick-start)
+  - [Table of Contents](#table-of-contents)
   - [Credits](#credits)
   - [Installation](#installation)
-    - [R version requirement](#r-version-requirement)
-    - [Prepare python environment](#prepare-python-environment)
+    - [*R* requirement](#r-requirement)
+    - [*Python* environment](#python-environment)
+  - [Pipeline](#pipeline)
     - [Data exploration](#data-exploration)
-    - [CellQC](#cellqc)
-    - [Standard pipeline](#standard-pipeline)
+    - [Quality control](#quality-control)
     - [Integration pipeline](#integration-pipeline)
-    - [Cell projection between single-cell datasets](#cell-projection-between-single-cell-datasets)
-    - [Cell annotation using bulk RNA-seq datasets](#cell-annotation-using-bulk-rna-seq-datasets)
-    - [Cell annotation using single-cell datasets](#cell-annotation-using-single-cell-datasets)
-    - [PAGA analysis](#paga-analysis)
-    - [Velocity analysis](#velocity-analysis)
-    - [Differential expression analysis](#differential-expression-analysis)
-    - [Enrichment analysis(over-representation)](#enrichment-analysisover-representation)
-    - [Enrichment analysis(GSEA)](#enrichment-analysisgsea)
+    - [Cell annotation](#cell-annotation)
+      - [Cell projection between single-cell datasets](#cell-projection-between-single-cell-datasets)
+      - [Cell annotation using bulk RNA-seq datasets](#cell-annotation-using-bulk-rna-seq-datasets)
+      - [Cell annotation using single-cell datasets](#cell-annotation-using-single-cell-datasets)
+    - [Cellular potency](#cellular-potency)
+      - [CytoTRACE 2](#cytotrace-2)
     - [Trajectory inference](#trajectory-inference)
+      - [RNA Velocity analysis](#rna-velocity-analysis)
+      - [PAGA](#paga)
+      - [Slingshot](#slingshot)
+      - [Monocle3](#monocle3)
     - [Dynamic features](#dynamic-features)
+    - [Differential expression analysis](#differential-expression-analysis)
+    - [Enrichment analysis](#enrichment-analysis)
+      - [Over-representation](#over-representation)
+      - [GSEA](#gsea)
     - [Interactive data visualization with SCExplorer](#interactive-data-visualization-with-scexplorer)
     - [Other visualization examples](#other-visualization-examples)
 
 ## Credits
 
-The [scop](https://github.com/mengxu98/scop) package is developed based on the [SCP](https://github.com/zhanghao-njmu/SCP) package, making it compatible with [Seurat](https://github.com/mojaveazure/seurat) V5 and adding support for single-cell omics data.
+The [scop](https://github.com/mengxu98/scop) package is developed based on the [SCP](https://github.com/zhanghao-njmu/SCP) package, with the following major improvements:
+
+1. Compatibility: full support for [Seurat v5](https://github.com/satijalab/seurat).
+2. Stability: a large number of known issues have been fixed, and all functions have passed `devtools::check()`.
+3. Usability: the *Python* environment setup workflow has been improved, allowing a new complete environment to be deployed within minutes; standardized console messages via `thisutils::log_message` for consistent, readable function outputs.
+4. Performance: a new parallel framework has been developed based on `thisutils::parallelize_fun`, providing a consistent experience across *Linux*, *macOS*, and *Windows*.
+5. Functionality: more analysis methods have been added, including [CellRank](https://github.com/scverse/cellrank), [CellTypist](https://github.com/Teichlab/celltypist), [CytoTRACE 2](https://github.com/digitalcytometry/cytotrace2), [CellChat](https://github.com/jinworks/CellChat), [GSVA](https://github.com/rcastelo/GSVA), [scMetabolism](https://github.com/wu-yc/scMetabolism) and [scProportionTest](https://github.com/rpolicastro/scProportionTest).
 
 ## Installation
 
-### R version requirement
+### *R* requirement
 
 -   R \>= 4.1.0
 
@@ -68,9 +80,9 @@ if (!require("pak", quietly = TRUE)) {
 pak::pak("mengxu98/scop")
 ```
 
-### Prepare python environment
+### *Python* environment
 
-To run functions such as `RunPAGA()`, `RunSCVELO()`, [scop](https://github.com/mengxu98/scop) requires [conda](https://docs.conda.io/en/latest/miniconda.html) to create a separate python environment. The default environment name is `"scop_env"`. You can specify the environment name for scop by setting `options(scop_envname = "new_name")`.
+To run functions such as `RunPAGA()`, `RunSCVELO()`, [scop](https://github.com/mengxu98/scop) requires [conda](https://docs.conda.io/en/latest/miniconda.html) to create a separate environment. The default environment name is `"scop_env"`. You can specify the environment name for scop by setting `options(scop_envname = "new_name")`.
 
 Now, you can run `PrepareEnv()` to create the python environment for [scop](https://github.com/mengxu98/scop). If the conda binary is not found, it will automatically download and install miniconda.
 
@@ -94,41 +106,27 @@ scop::PrepareEnv(
 )
 ```
 
-Available miniconda repositories:
+- Available miniconda repositories:
+  - <https://repo.anaconda.com/miniconda> (default)
+  - <http://mirrors.aliyun.com/anaconda/miniconda>
+  - <https://mirrors.bfsu.edu.cn/anaconda/miniconda>
+  - <https://mirrors.pku.edu.cn/anaconda/miniconda>
+  - <https://mirror.nju.edu.cn/anaconda/miniconda>
+  - <https://mirrors.sustech.edu.cn/anaconda/miniconda>
+  - <https://mirrors.xjtu.edu.cn/anaconda/miniconda>
+  - <https://mirrors.hit.edu.cn/anaconda/miniconda>
 
--   <https://repo.anaconda.com/miniconda> (default)
+- Available PyPI mirrors:
+  - <https://pypi.python.org/simple> (default)
+  - <https://mirrors.aliyun.com/pypi/simple>
+  - <https://pypi.tuna.tsinghua.edu.cn/simple>
+  - <https://mirrors.pku.edu.cn/pypi/simple>
+  - <https://mirror.nju.edu.cn/pypi/web/simple>
+  - <https://mirrors.sustech.edu.cn/pypi/simple>
+  - <https://mirrors.xjtu.edu.cn/pypi/simple>
+  - <https://mirrors.hit.edu.cn/pypi/web/simple>
 
--   <http://mirrors.aliyun.com/anaconda/miniconda>
-
--   <https://mirrors.bfsu.edu.cn/anaconda/miniconda>
-
--   <https://mirrors.pku.edu.cn/anaconda/miniconda>
-
--   <https://mirror.nju.edu.cn/anaconda/miniconda>
-
--   <https://mirrors.sustech.edu.cn/anaconda/miniconda>
-
--   <https://mirrors.xjtu.edu.cn/anaconda/miniconda>
-
--   <https://mirrors.hit.edu.cn/anaconda/miniconda>
-
-Available PyPI mirrors:
-
--   <https://pypi.python.org/simple> (default)
-
--   <https://mirrors.aliyun.com/pypi/simple>
-
--   <https://pypi.tuna.tsinghua.edu.cn/simple>
-
--   <https://mirrors.pku.edu.cn/pypi/simple>
-
--   <https://mirror.nju.edu.cn/pypi/web/simple>
-
--   <https://mirrors.sustech.edu.cn/pypi/simple>
-
--   <https://mirrors.xjtu.edu.cn/pypi/simple>
-
--   <https://mirrors.hit.edu.cn/pypi/web/simple>
+## Pipeline
 
 ### Data exploration
 
@@ -138,65 +136,82 @@ The analysis is based on a subsetted version of [mouse pancreas data](https://do
 library(scop)
 data(pancreas_sub)
 print(pancreas_sub)
-#> An object of class Seurat
-#> 47886 features across 1000 samples within 3 assays
-#> Active assay: RNA (15962 features, 2000 variable features)
-#>  3 layers present: counts, data, scale.data
+#> An object of class Seurat 
+#> 47994 features across 1000 samples within 3 assays 
+#> Active assay: RNA (15998 features, 0 variable features)
+#>  1 layer present: counts
 #>  2 other assays present: spliced, unspliced
-#>  2 dimensional reductions calculated: pca, umap
 ```
 
 ``` r
+pancreas_sub <- standard_scop(pancreas_sub)
+print(pancreas_sub)
+#>  An object of class Seurat 
+#>  47994 features across 1000 samples within 3 assays 
+#>  Active assay: RNA (15998 features, 2000 variable features)
+#>   3 layers present: counts, data, scale.data
+#>   2 other assays present: spliced, unspliced
+#>   5 dimensional reductions calculated: Standardpca, StandardpcaUMAP2D, StandardpcaUMAP3D, StandardUMAP2D, StandardUMAP3D
+```
+
+```r
 CellDimPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   group.by = c("CellType", "SubCellType"),
   reduction = "UMAP",
-  theme_use = "theme_blank"
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/EDA-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/EDA-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 CellDimPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   group.by = "SubCellType",
   stat.by = "Phase",
   reduction = "UMAP",
-  theme_use = "theme_blank"
+  theme_use = "theme_blank",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/EDA-2.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/EDA-2.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 FeatureDimPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   features = c("Sox9", "Neurog3", "Fev", "Rbp4"),
   reduction = "UMAP",
-  theme_use = "theme_blank"
+  theme_use = "theme_blank",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/EDA-3.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/EDA-3.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 FeatureDimPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   features = c("Ins1", "Gcg", "Sst", "Ghrl"),
   compare_features = TRUE,
   label = TRUE,
   label_insitu = TRUE,
   reduction = "UMAP",
-  theme_use = "theme_blank"
+  theme_use = "theme_blank",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/EDA-4.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/EDA-4.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 ht <- GroupHeatmap(
-  srt = pancreas_sub,
+  pancreas_sub,
   features = c(
     "Sox9", "Anxa2", # Ductal
     "Neurog3", "Hes6", # EPs
@@ -205,151 +220,140 @@ ht <- GroupHeatmap(
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
   group.by = c("CellType", "SubCellType"),
-  heatmap_palette = "YlOrRd",
+  heatmap_palette = "Spectral",
   cell_annotation = c("Phase", "G2M_score", "Cdh2"),
-  cell_annotation_palette = c("Dark2", "Paired", "Paired"),
-  show_row_names = TRUE, row_names_side = "left",
-  add_dot = TRUE, add_reticle = TRUE
+  cell_annotation_palette = c("Dark2", "Chinese", "Chinese"),
+  show_row_names = TRUE,
+  nlabel = 0,
+  row_names_side = "left",
+  add_dot = TRUE,
+  add_reticle = TRUE,
+  width = 2.2,
+  height = 2.5
 )
 print(ht$plot)
 ```
 
-<img src="man/figures/EDA-5.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/EDA-5.png" width="100%" style="display: block; margin: auto;"/>
 
-### CellQC
-
-``` r
-pancreas_sub <- RunCellQC(srt = pancreas_sub)
-CellDimPlot(srt = pancreas_sub, group.by = "CellQC", reduction = "UMAP")
-```
-
-<img src="man/figures/RunCellQC-1.png" width="100%" style="display: block; margin: auto;"/>
+###  Quality control
 
 ``` r
-CellStatPlot(srt = pancreas_sub, stat.by = "CellQC", group.by = "CellType", label = TRUE)
+pancreas_sub <- RunCellQC(pancreas_sub)
+CellDimPlot(
+  pancreas_sub,
+  group.by = "CellQC",
+  reduction = "UMAP"
+)
 ```
 
-<img src="man/figures/RunCellQC-2.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunCellQC-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 CellStatPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
+  stat.by = "CellQC",
+  group.by = "CellType"
+) + ggplot2::theme(aspect.ratio = 1 / 2)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunCellQC-2.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+CellStatPlot(
+  pancreas_sub,
   stat.by = c(
-    "db_qc", "outlier_qc",
+    "db_qc", "decontX_qc", "outlier_qc",
     "umi_qc", "gene_qc",
     "mito_qc", "ribo_qc",
     "ribo_mito_ratio_qc", "species_qc"
   ),
   plot_type = "upset",
   stat_level = "Fail"
-)
+) + ggplot2::theme(aspect.ratio = 1 / 2)
 ```
 
-<img src="man/figures/RunCellQC-3.png" width="100%" style="display: block; margin: auto;"/>
-
-### Standard pipeline
-
-``` r
-pancreas_sub <- standard_scop(srt = pancreas_sub)
-CellDimPlot(
-  srt = pancreas_sub,
-  group.by = c("CellType", "SubCellType"),
-  reduction = "StandardUMAP2D",
-  theme_use = "theme_blank"
-)
-```
-
-<img src="man/figures/standard_scop-1.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-CellDimPlot3D(
-  srt = pancreas_sub,
-  group.by = "SubCellType"
-)
-```
-
-![CellDimPlot3D](man/figures/CellDimPlot3D-1.png)
-
-``` r
-FeatureDimPlot3D(
-  srt = pancreas_sub,
-  features = c("Sox9", "Neurog3", "Fev", "Rbp4")
-)
-```
-
-![FeatureDimPlot3D](man/figures/FeatureDimPlot3D-1.png)
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunCellQC-3.png" width="100%" style="display: block; margin: auto;"/>
 
 ### Integration pipeline
 
 Example data for integration is a subsetted version of [panc8(eight human pancreas datasets)](https://github.com/satijalab/seurat-data)
 
 ``` r
-data("panc8_sub")
+data(panc8_sub)
 panc8_sub <- integration_scop(
   srt_merge = panc8_sub,
   batch = "tech",
-  integration_method = "Seurat"
+  integration_method = "Harmony"
 )
 CellDimPlot(
-  srt = panc8_sub,
-  group.by = c("celltype", "tech"),
-  reduction = "SeuratUMAP2D",
-  title = "Seurat",
+  panc8_sub,
+  group.by = c("tech", "celltype"),
+  reduction = "HarmonyUMAP",
   theme_use = "theme_blank"
 )
 ```
 
-<img src="man/figures/integration_scop-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/integration_scop-1.png" width="100%" style="display: block; margin: auto;"/>
 
-### Cell projection between single-cell datasets
+### Cell annotation
+
+#### Cell projection between single-cell datasets
 
 ``` r
 genenames <- make.unique(
   thisutils::capitalize(
-    rownames(panc8_sub[["RNA"]]
-  ),
-  force_tolower = TRUE)
+    rownames(panc8_sub[["RNA"]]),
+    force_tolower = TRUE
+  )
 )
 names(genenames) <- rownames(panc8_sub)
 panc8_rename <- RenameFeatures(
-  srt = panc8_sub,
+  panc8_sub,
   newnames = genenames,
   assays = "RNA"
 )
 srt_query <- RunKNNMap(
   srt_query = pancreas_sub,
   srt_ref = panc8_rename,
-  ref_umap = "SeuratUMAP2D")
+  ref_umap = "HarmonyUMAP2D"
+)
 ProjectionPlot(
   srt_query = srt_query,
   srt_ref = panc8_rename,
   query_group = "SubCellType",
-  ref_group = "celltype"
+  ref_group = "celltype",
+  ref_param = list(
+    xlab = "UMAP_1",
+    ylab = "UMAP_2"
+  )
 )
 ```
 
-<img src="man/figures/RunKNNMap-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunKNNMap-1.png" width="100%" style="display: block; margin: auto;"/>
 
-### Cell annotation using bulk RNA-seq datasets
+#### Cell annotation using bulk RNA-seq datasets
 
 ``` r
-data("ref_scMCA")
+data(ref_scMCA)
 pancreas_sub <- RunKNNPredict(
   srt_query = pancreas_sub,
   bulk_ref = ref_scMCA,
   filter_lowfreq = 20
 )
 CellDimPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   group.by = "KNNPredict_classification",
   reduction = "UMAP",
-  label = TRUE
+  label = TRUE,
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;"/>
 
-### Cell annotation using single-cell datasets
+#### Cell annotation using single-cell datasets
 
 ``` r
 pancreas_sub <- RunKNNPredict(
@@ -359,14 +363,16 @@ pancreas_sub <- RunKNNPredict(
   filter_lowfreq = 20
 )
 CellDimPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   group.by = "KNNPredict_classification",
   reduction = "UMAP",
-  label = TRUE
+  label = TRUE,
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 ht <- CellCorHeatmap(
@@ -377,252 +383,194 @@ ht <- CellCorHeatmap(
   nlabel = 3,
   label_by = "row",
   show_row_names = TRUE,
-  show_column_names = TRUE
+  show_column_names = TRUE,
+  width = 4,
+  height = 2.5
 )
 print(ht$plot)
 ```
 
-<img src="man/figures/RunKNNPredict-scrna-3.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunKNNPredict-scrna-3.png" width="100%" style="display: block; margin: auto;"/>
 
-### PAGA analysis
+### Cellular potency
+
+#### CytoTRACE 2
 
 ``` r
-PrepareEnv()
+pancreas_sub <- RunCytoTRACE(
+  pancreas_sub,
+  species = "Mus_musculus"
+)
+CytoTRACEPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunCytoTRACE.png" width="100%" style="display: block; margin: auto;"/>
+
+### Trajectory inference
+
+#### RNA Velocity analysis
+
+To estimate RNA velocity, both "spliced" and "unspliced" assays are required in the Seurat object. You can generate these matrices using [velocyto](http://velocyto.org/velocyto.py/index.html), [bustools](https://bustools.github.io/BUS_notebooks_R/velocity.html), or [alevin](https://combine-lab.github.io/alevin-fry-tutorials/2021/alevin-fry-velocity/).
+
+``` r
+pancreas_sub <- RunSCVELO(
+  pancreas_sub,
+  group.by = "SubCellType",
+  linear_reduction = "PCA",
+  nonlinear_reduction = "UMAP"
+)
+VelocityPlot(
+  pancreas_sub,
+  reduction = "UMAP",
+  group.by = "SubCellType",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunSCVELO-1.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+VelocityPlot(
+  pancreas_sub,
+  reduction = "UMAP",
+  plot_type = "stream",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunSCVELO-2.png" width="100%" style="display: block; margin: auto;"/>
+
+#### PAGA
+
+``` r
 pancreas_sub <- RunPAGA(
-  srt = pancreas_sub,
-  group_by = "SubCellType",
+  pancreas_sub,
+  group.by = "SubCellType",
   linear_reduction = "PCA",
   nonlinear_reduction = "UMAP"
 )
 PAGAPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   reduction = "UMAP",
   label = TRUE,
   label_insitu = TRUE,
-  label_repel = TRUE
+  label_repel = TRUE,
+  edge_size = c(0.5, 1),
+  edge_color = "black",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/RunPAGA-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunPAGA-1.png" width="100%" style="display: block; margin: auto;"/>
 
-### Velocity analysis
-
-To estimate RNA velocity, both “spliced” and “unspliced” assays in Seurat object. You can generate these matrices using [velocyto](http://velocyto.org/velocyto.py/index.html), [bustools](https://bustools.github.io/BUS_notebooks_R/velocity.html), or [alevin](https://combine-lab.github.io/alevin-fry-tutorials/2021/alevin-fry-velocity/).
+#### Slingshot
 
 ``` r
-pancreas_sub <- RunSCVELO(
-  srt = pancreas_sub,
-  group_by = "SubCellType",
-  linear_reduction = "PCA",
-  nonlinear_reduction = "UMAP"
-)
-VelocityPlot(
-  srt = pancreas_sub,
+pancreas_sub <- RunSlingshot(
+  pancreas_sub,
+  group.by = "SubCellType",
   reduction = "UMAP",
-  group_by = "SubCellType"
+  start = "Ductal",
+  end = c("Alpha", "Beta")
 )
-```
-
-<img src="man/figures/RunSCVELO-1.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-VelocityPlot(
-  srt = pancreas_sub,
+CellDimPlot(
+  pancreas_sub,
+  group.by = "SubCellType",
+  lineages = paste0("Lineage", 1:2),
   reduction = "UMAP",
-  plot_type = "stream"
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/RunSCVELO-2.png" width="100%" style="display: block; margin: auto;"/>
-
-### Differential expression analysis
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunSlingshot-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
-pancreas_sub <- RunDEtest(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  fc.threshold = 1,
-  only.pos = FALSE
-)
-VolcanoPlot(
-  srt = pancreas_sub,
-  group_by = "CellType"
+FeatureDimPlot(
+  pancreas_sub,
+  features = paste0("Lineage", 1:2),
+  reduction = "UMAP",
+  theme_use = "theme_blank",
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
 )
 ```
 
-<img src="man/figures/RunDEtest-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunSlingshot-2.png" width="100%" style="display: block; margin: auto;"/>
+
+#### Monocle3
 
 ``` r
-DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
-DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
+pancreas_sub <- RunMonocle3(
+  pancreas_sub,
+  group.by = "SubCellType"
+)
+trajectory <- pancreas_sub@tools$Monocle3$trajectory
+milestones <- pancreas_sub@tools$Monocle3$milestones
+CellDimPlot(
+  pancreas_sub,
+  group.by = "Monocle3_partitions",
+  reduction = "UMAP",
+  label = TRUE,
+  xlab = "UMAP_1",
+  ylab = "UMAP_2"
+) +
+  trajectory +
+  milestones +
+  CellDimPlot(
+    pancreas_sub,
+    group.by = "Monocle3_clusters",
+    reduction = "UMAP",
+    label = TRUE,
+    xlab = "UMAP_1",
+    ylab = "UMAP_2"
+  ) +
+  trajectory +
+  CellDimPlot(
+    pancreas_sub,
+    group.by = "SubCellType",
+    reduction = "UMAP",
+    label = TRUE,
+    xlab = "UMAP_1",
+    ylab = "UMAP_2"
+  ) +
+  trajectory +
+  FeatureDimPlot(
+    pancreas_sub,
+    features = "Monocle3_Pseudotime",
+    reduction = "UMAP",
+    xlab = "UMAP_1",
+    ylab = "UMAP_2"
+  ) +
+  trajectory
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunMonocle3.png" width="100%" style="display: block; margin: auto;"/>
+
+### Dynamic features
+
+``` r
+pancreas_sub <- RunDynamicFeatures(
+  pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  n_candidates = 200
+)
 # Annotate features with transcription factors and surface proteins
 pancreas_sub <- AnnotateFeatures(
   pancreas_sub,
   species = "Mus_musculus",
   db = c("TF", "CSPA")
 )
-ht <- FeatureHeatmap(
-  srt = pancreas_sub,
-  group.by = "CellType",
-  features = DEGs$gene,
-  feature_split = DEGs$group1,
-  species = "Mus_musculus",
-  db = c("GO_BP", "KEGG", "WikiPathway"),
-  anno_terms = TRUE,
-  feature_annotation = c("TF", "CSPA"),
-  feature_annotation_palcolor = list(
-    c("gold", "steelblue"), c("forestgreen")
-  ),
-  height = 5, width = 4
-)
-print(ht$plot)
-```
-
-<img src="man/figures/FeatureHeatmap-1.png" width="100%" style="display: block; margin: auto;"/>
-
-### Enrichment analysis(over-representation)
-
-``` r
-pancreas_sub <- RunEnrichment(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  db = "GO_BP",
-  species = "Mus_musculus",
-  DE_threshold = "avg_log2FC > log2(1.5) & p_val_adj < 0.05"
-)
-EnrichmentPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  group_use = c("Ductal", "Endocrine"),
-  plot_type = "bar"
-)
-```
-
-<img src="man/figures/RunEnrichment-1.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-EnrichmentPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  group_use = c("Ductal", "Endocrine"),
-  plot_type = "wordcloud"
-)
-```
-
-<img src="man/figures/RunEnrichment-2.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-EnrichmentPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  group_use = c("Ductal", "Endocrine"),
-  plot_type = "wordcloud",
-  word_type = "feature"
-)
-```
-
-<img src="man/figures/RunEnrichment-3.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-EnrichmentPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  group_use = "Ductal",
-  plot_type = "network"
-)
-```
-
-<img src="man/figures/RunEnrichment-4.png" width="100%" style="display: block; margin: auto;"/>
-
-To ensure that labels are visible, you can adjust the size of the viewer panel on Rstudio IDE.
-
-``` r
-EnrichmentPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  group_use = "Ductal",
-  plot_type = "enrichmap"
-)
-```
-
-<img src="man/figures/Enrichment_enrichmap-1.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-EnrichmentPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  plot_type = "comparison"
-)
-```
-
-<img src="man/figures/Enrichment_comparison-1.png" width="100%" style="display: block; margin: auto;"/>
-
-### Enrichment analysis(GSEA)
-
-``` r
-pancreas_sub <- RunGSEA(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  db = "GO_BP",
-  species = "Mus_musculus",
-  DE_threshold = "p_val_adj < 0.05"
-)
-GSEAPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  group_use = "Endocrine",
-  id_use = "GO:0007186"
-)
-```
-
-<img src="man/figures/RunGSEA-1.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-GSEAPlot(
-  srt = pancreas_sub,
-  group_by = "CellType",
-  group_use = "Endocrine",
-  plot_type = "bar",
-  direction = "both",
-  topTerm = 20
-)
-```
-
-<img src="man/figures/GSEA_bar-1.png" width="100%" style="display: block; margin: auto;"/>
-
-### Trajectory inference
-
-``` r
-pancreas_sub <- RunSlingshot(
-  srt = pancreas_sub,
-  group.by = "SubCellType",
-  reduction = "UMAP"
-)
-```
-
-<img src="man/figures/RunSlingshot-1.png" width="100%" style="display: block; margin: auto;"/>
-
-``` r
-FeatureDimPlot(
-  pancreas_sub,
-  features = paste0("Lineage", 1:3),
-  reduction = "UMAP",
-  theme_use = "theme_blank"
-)
-```
-
-<img src="man/figures/RunSlingshot-2.png" width="100%" style="display: block; margin: auto;"/>
-
-### Dynamic features
-
-``` r
-pancreas_sub <- RunDynamicFeatures(
-  srt = pancreas_sub,
-  lineages = c("Lineage1", "Lineage2"),
-  n_candidates = 200
-)
 ht <- DynamicHeatmap(
-  srt = pancreas_sub,
+  pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   use_fitted = TRUE,
   n_split = 6,
@@ -632,44 +580,45 @@ ht <- DynamicHeatmap(
   anno_terms = TRUE,
   anno_keys = TRUE,
   anno_features = TRUE,
+  exp_legend_title = "Z-score",
   heatmap_palette = "viridis",
   cell_annotation = "SubCellType",
   separate_annotation = list(
     "SubCellType", c("Nnat", "Irx1")
   ),
-  separate_annotation_palette = c("Paired", "Set1"),
+  separate_annotation_palette = c("Chinese", "Set1"),
   feature_annotation = c("TF", "CSPA"),
   feature_annotation_palcolor = list(
     c("gold", "steelblue"), c("forestgreen")
   ),
   pseudotime_label = 25,
   pseudotime_label_color = "red",
+  cores = 6,
   height = 5,
   width = 2
 )
 print(ht$plot)
 ```
 
-<img src="man/figures/DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 DynamicPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   group.by = "SubCellType",
   features = c(
-    "Plk1", "Hes1", "Neurod2", "Ghrl", "Gcg", "Ins2"
-  ),
-  compare_lineages = TRUE,
-  compare_features = FALSE
+    "Plk1", "Hes1", "Neurod2",
+    "Ghrl", "Gcg", "Ins2"
+  )
 )
 ```
 
-<img src="man/figures/DynamicPlot-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/DynamicPlot-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ``` r
 FeatureStatPlot(
-  srt = pancreas_sub,
+  pancreas_sub,
   group.by = "SubCellType",
   bg.by = "CellType",
   stat.by = c("Sox9", "Neurod2", "Isl1", "Rbp4"),
@@ -679,10 +628,205 @@ FeatureStatPlot(
     c("Ngn3 high EP", "Pre-endocrine"),
     c("Alpha", "Beta")
   )
+) + patchwork::plot_layout(
+  guides = "collect"
 )
 ```
 
-<img src="man/figures/FeatureStatPlot-1.png" width="100%" style="display: block; margin: auto;"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/FeatureStatPlot-1.png" width="100%" style="display: block; margin: auto;"/>
+
+### Differential expression analysis
+
+``` r
+pancreas_sub <- RunDEtest(
+  pancreas_sub,
+  group.by = "CellType",
+  fc.threshold = 1,
+  only.pos = FALSE
+)
+DEtestPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  plot_type = "volcano",
+  label.size = 2
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunDEtest-1.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+DEtestPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  plot_type = "manhattan",
+  label.size = 2
+) + ggplot2::theme(aspect.ratio = 1 / 2)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunDEtest-2.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+DEtestPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  plot_type = "ring",
+  label.size = 2
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunDEtest-3.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
+DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
+
+ht <- FeatureHeatmap(
+  pancreas_sub,
+  group.by = "CellType",
+  features = DEGs$gene,
+  feature_split = DEGs$group1,
+  exp_legend_title = "Z-score",
+  species = "Mus_musculus",
+  db = c("GO_BP", "KEGG", "WikiPathway"),
+  anno_terms = TRUE,
+  feature_annotation = c("TF", "CSPA"),
+  feature_annotation_palcolor = list(
+    c("gold", "steelblue"), c("forestgreen")
+  ),
+  cores = 6,
+  height = 5,
+  width = 3
+)
+print(ht$plot)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/FeatureHeatmap-1.png" width="100%" style="display: block; margin: auto;"/>
+
+### Enrichment analysis
+
+#### Over-representation
+
+``` r
+pancreas_sub <- RunEnrichment(
+  pancreas_sub,
+  group.by = "CellType",
+  db = "GO_BP",
+  species = "Mus_musculus",
+  DE_threshold = "avg_log2FC > log2(1.5) & p_val_adj < 0.05",
+  cores = 5
+)
+EnrichmentPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = c("Ductal", "Endocrine"),
+  plot_type = "bar"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunEnrichment-1.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+EnrichmentPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = c("Ductal", "Endocrine"),
+  plot_type = "wordcloud"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunEnrichment-2.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+EnrichmentPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = c("Ductal", "Endocrine"),
+  plot_type = "wordcloud",
+  word_type = "feature"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunEnrichment-3.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+EnrichmentPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = "Ngn3-low-EP",
+  plot_type = "network"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunEnrichment-4.png" width="100%" style="display: block; margin: auto;"/>
+
+To ensure that labels are visible, you can adjust the size of the viewer panel on Rstudio IDE.
+
+``` r
+EnrichmentPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = "Ductal",
+  plot_type = "enrichmap"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/Enrichment_enrichmap-1.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+EnrichmentPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  plot_type = "comparison",
+  topTerm = 3
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/Enrichment_comparison-1.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+EnrichmentPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = "Ductal",
+  plot_type = "lollipop"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/Enrichment_lollipop-1.png" width="100%" style="display: block; margin: auto;"/>
+
+#### GSEA
+
+``` r
+pancreas_sub <- RunGSEA(
+  pancreas_sub,
+  group.by = "CellType",
+  db = "GO_BP",
+  species = "Mus_musculus",
+  DE_threshold = "p_val_adj < 0.05",
+  cores = 5
+)
+GSEAPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = "Endocrine",
+  id_use = "GO:0007186"
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/RunGSEA-1.png" width="100%" style="display: block; margin: auto;"/>
+
+``` r
+GSEAPlot(
+  pancreas_sub,
+  group.by = "CellType",
+  group_use = "Endocrine",
+  plot_type = "bar",
+  direction = "both",
+  topTerm = 10
+)
+```
+
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/GSEA_bar-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ### Interactive data visualization with SCExplorer
 
@@ -702,12 +846,16 @@ if (interactive()) {
 }
 ```
 
-![SCExplorer1](man/figures/SCExplorer-1.png)
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/scop/SCExplorer-1.png" width="100%" style="display: block; margin: auto;"/>
 
 ### Other visualization examples
 
-[**CellDimPlot**](https://mengxu98.github.io/scop/reference/CellDimPlot.html)
+[**CellDimPlot**](https://mengxu98.github.io/scop/reference/CellDimPlot.html)![Example1](https://raw.githubusercontent.com/mengxu98/figures/main/scop/Example-1.png) 
 
-![Example1](man/figures/Example-1.jpg) [**CellStatPlot**](https://mengxu98.github.io/scop/reference/CellStatPlot.html)![Example2](man/figures/Example-2.jpg) [**FeatureStatPlot**](https://mengxu98.github.io/scop/reference/FeatureStatPlot.html)![Example3](man/figures/Example-3.jpg) [**GroupHeatmap**](https://mengxu98.github.io/scop/reference/GroupHeatmap.html)![Example3](man/figures/Example-4.jpg)
+[**CellStatPlot**](https://mengxu98.github.io/scop/reference/CellStatPlot.html)![Example2](https://raw.githubusercontent.com/mengxu98/figures/main/scop/Example-2.png)
+
+[**FeatureStatPlot**](https://mengxu98.github.io/scop/reference/FeatureStatPlot.html)![Example3](https://raw.githubusercontent.com/mengxu98/figures/main/scop/Example-3.png)
+
+[**GroupHeatmap**](https://mengxu98.github.io/scop/reference/GroupHeatmap.html)![Example3](https://raw.githubusercontent.com/mengxu98/figures/main/scop/Example-4.png)
 
 You can also find more examples in the documentation of the function: [integration_scop](https://mengxu98.github.io/scop/reference/integration_scop.html), [RunKNNMap](https://mengxu98.github.io/scop/reference/RunKNNMap.html), [RunPalantir](https://mengxu98.github.io/scop/reference/RunPalantir.html), etc.

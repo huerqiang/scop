@@ -37,57 +37,22 @@ reference:
 - contents:
   - scop-package
   - scop_logo
+  - print.scop_logo
 
 - subtitle: "Package Management"
 - contents:
   - check_python
-  - check_r
-  - conda_install
-  - conda_python
-  - env_exist
   - env_info
   - env_requirements
-  - exist_python_pkgs
-  - find_conda
-  - install_miniconda2
-  - installed_python_pkgs
   - ListEnv
   - PrepareEnv
   - remove_python
-  - remove_r
   - RemoveEnv
 
 - subtitle: "scop pipeline"
 - contents:
   - integration_scop
   - standard_scop
-
-- subtitle: "Data Processing"
-- contents:
-  - adata_to_srt
-  - CellScoring
-  - CheckDataType
-  - CheckDataList
-  - CheckDataMerge
-  - CycGenePrefetch
-  - DefaultReduction
-  - FetchDataZero
-  - GeneConvert
-  - GetAssayData5
-  - is_outlier
-  - RecoverCounts
-  - RenameClusters
-  - srt_append
-  - srt_to_adata
-  - srt_reorder
-
-- subtitle: "Feature Processing"
-- contents:
-  - AddFeaturesData
-  - AnnotateFeatures
-  - GetFeaturesData
-  - GetSimilarFeatures
-  - RenameFeatures
 
 - subtitle: "Quality Control"
 - contents:
@@ -96,11 +61,39 @@ reference:
   - db_scds
   - db_Scrublet
   - RunCellQC
+  - RunDecontX
   - RunDoubletCalling
+
+- subtitle: "Data Integration and Batch Effect Removal"
+- contents:
+  - BBKNN_integrate
+  - CCA_integrate
+  - Coralysis_integrate
+  - CSS_integrate
+  - ComBat_integrate
+  - Conos_integrate
+  - fastMNN_integrate
+  - fastMNN5_integrate
+  - Harmony_integrate
+  - Harmony5_integrate
+  - LIGER_integrate
+  - MNN_integrate
+  - RPCA_integrate
+  - RunCSSMap
+  - RunHarmony2
+  - RunPCAMap
+  - RunSeuratMap
+  - RunSymphonyMap
+  - Scanorama_integrate
+  - Seurat_integrate
+  - scVI_integrate
+  - scVI5_integrate
+  - Uncorrected_integrate
 
 - subtitle: "Dimensionality Reduction and Clustering"
 - contents:
-  - RunDimReduction
+  - RunDimsEstimate
+  - RunDimsReduction
   - RunDM
   - RunFR
   - RunGLMPCA
@@ -111,42 +104,38 @@ reference:
   - RunTriMap
   - RunPHATE
   - RunLargeVis
-  - RunKNNPredict
 
-- subtitle: "Data Integration and Batch Effect Removal"
+- subtitle: "Cell Type Annotation"
 - contents:
-  - RunCSSMap
-  - RunHarmony2
+  - CellTypistModels
+  - RunCellTypist
   - RunKNNMap
-  - RunPCAMap
+  - RunKNNPredict
   - RunScmap
-  - RunSeuratMap
   - RunSingleR
-  - RunSymphonyMap
-  - BBKNN_integrate
-  - CSS_integrate
-  - ComBat_integrate
-  - Conos_integrate
-  - Harmony_integrate
-  - LIGER_integrate
-  - MNN_integrate
-  - Scanorama_integrate
-  - Seurat_integrate
-  - scVI_integrate
-  - Uncorrected_integrate
-  - fastMNN_integrate
+  - TrainCellTypist
 
-- subtitle: "Differential Analysis and Enrichment"
+- subtitle: "Differential Analysis"
 - contents:
   - FindExpressedMarkers
   - RunDEtest
-  - RunGSEA
-  - RunEnrichment
-  - RunDynamicEnrichment
   - RunProportionTest
 
-- subtitle: "Trajectory Analysis"
+- subtitle: "Enrichment Analysis"
 - contents:
+  - CellScoring
+  - RunDynamicEnrichment
+  - RunEnrichment
+  - RunGSEA
+  - RunGSVA
+  - RunMetabolism
+
+- subtitle: "Dynamic Trajectory Analysis"
+- contents:
+  - RunCellRank
+  - RunCytoTRACE
+  - RunMonocle2
+  - RunMonocle3
   - RunPAGA
   - RunPalantir
   - RunSlingshot
@@ -154,18 +143,57 @@ reference:
   - RunWOT
   - RunDynamicFeatures
 
-- subtitle: "Cell Communication Analysis"
+- subtitle: "Cell-Cell Communication Analysis"
 - contents:
   - RunCellChat
+  - RunCellphoneDB
+  - RunNichenetr
+  - RunMultiNichenetr
+
+- subtitle: "Data Conversion"
+- contents:
+  - adata_to_srt
+  - h5ad_to_srt
+  - srt_to_adata
+
+- subtitle: "Data Processing"
+- contents:
+  - CheckDataType
+  - CheckDataList
+  - CheckDataMerge
+  - CycGenePrefetch
+  - DefaultReduction
+  - FetchDataZero
+  - GeneConvert
+  - GetAssayData5
+  - RecoverCounts
+  - RenameClusters
+  - srt_append
+  - srt_reorder
+
+- subtitle: "Feature Processing"
+- contents:
+  - AddFeaturesData
+  - AnnotateFeatures
+  - GetFeaturesData
+  - GetSimilarFeatures
+  - RenameFeatures
 
 - subtitle: "Visualization Functions"
 - contents:
-  - CellChatPlot
+  - CCCHeatmap
+  - CCCNetworkPlot
+  - CCCStatPlot
   - CellDimPlot
   - CellDimPlot3D
   - CellDensityPlot
   - CellCorHeatmap
   - CellStatPlot
+  - CytoTRACEPlot
+  - DEtestPlot
+  - DEtestManhattanPlot
+  - DEtestRingPlot
+  - DimsEstimatePlot
   - DynamicPlot
   - DynamicHeatmap
   - EnrichmentPlot
@@ -174,23 +202,18 @@ reference:
   - FeatureHeatmap
   - FeatureCorPlot
   - FeatureStatPlot
-  - GraphPlot
   - GroupHeatmap
   - GSEAPlot
+  - GSVAPlot
   - LineagePlot
+  - MetabolismPlot
   - PAGAPlot
   - ProjectionPlot
   - ProportionTestPlot
-  - StatPlot
+  - PseudotimeProjectionPlot
   - TACSPlot
   - VelocityPlot
   - VolcanoPlot
-
-- subtitle: "Plotting Functions"
-- contents:
-  - compute_velocity_on_grid
-  - cluster_within_group2
-  - print.scop_logo
 
 - subtitle: "SCExplorer"
 - contents:
@@ -207,10 +230,7 @@ reference:
 
 - subtitle: "Data"
 - contents:
-  - ifnb_sub
   - panc8_sub
   - pancreas_sub
-  - ref_scHCL
   - ref_scMCA
-  - ref_scZCL
   - words_excluded

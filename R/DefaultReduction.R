@@ -1,6 +1,6 @@
 #' @title Find the default reduction name in a Seurat object
 #'
-#' @param srt A Seurat object.
+#' @inheritParams standard_scop
 #' @param pattern Character string containing a regular expression to search for.
 #' @param min_dim Minimum dimension threshold.
 #' @param max_distance Maximum distance allowed for a match.
@@ -11,14 +11,14 @@
 #'
 #' @examples
 #' data(pancreas_sub)
+#' pancreas_sub <- standard_scop(pancreas_sub)
 #' names(pancreas_sub@reductions)
+#'
 #' DefaultReduction(pancreas_sub)
 #'
-#' # Searches for matches to "pca"
 #' DefaultReduction(pancreas_sub, pattern = "pca")
 #'
-#' # Searches for approximate matches to "pc"
-#' DefaultReduction(pancreas_sub, pattern = "pc")
+#' DefaultReduction(pancreas_sub, pattern = "umap")
 DefaultReduction <- function(
     srt,
     pattern = NULL,
@@ -53,7 +53,7 @@ DefaultReduction <- function(
   }))]
   if (length(reduc_all) == 0) {
     log_message(
-      "No dimensional reduction found in {.cls Seurat} object",
+      "No dimensional reduction found in {.cls Seurat}",
       message_type = "error"
     )
   }
@@ -121,7 +121,6 @@ DefaultReduction <- function(
           grep(pattern = pat, x = default_reduc, ignore.case = TRUE)
         }
       ))]
-      # 选择维度最小的
       default_reduc <- default_reduc[which.min(sapply(
         default_reduc,
         function(x) dim(srt@reductions[[x]])[2]

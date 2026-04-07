@@ -11,7 +11,7 @@ RunPAGA(
   layer_x = "counts",
   assay_y = c("spliced", "unspliced"),
   layer_y = "counts",
-  group_by = NULL,
+  group.by = NULL,
   linear_reduction = NULL,
   nonlinear_reduction = NULL,
   basis = NULL,
@@ -29,13 +29,16 @@ RunPAGA(
   n_dcs = 10,
   n_branchings = 0,
   min_group_size = 0.01,
-  palette = "Paired",
+  palette = "Chinese",
   palcolor = NULL,
+  legend.position = "on data",
+  cores = 1,
   show_plot = FALSE,
-  save = FALSE,
-  dpi = 300,
-  dirpath = "./",
-  fileprefix = "",
+  save_plot = FALSE,
+  plot_format = c("pdf", "png", "svg"),
+  plot_dpi = 300,
+  plot_prefix = "paga",
+  dirpath = "./paga",
   return_seurat = !is.null(srt),
   verbose = TRUE
 )
@@ -46,19 +49,28 @@ If provided, \code{adata} will be ignored.}
 
 \item{adata}{An anndata object. Default is \code{NULL}.}
 
-\item{assay_x}{Assay to convert in the anndata object.}
+\item{assay_x}{Assay to convert as the main data matrix in the anndata object.
+Default is \code{"RNA"}.}
 
-\item{layer_x}{Layer name for \code{assay_x} in the Seurat object.}
+\item{layer_x}{Layer name for assay_x in the Seurat object.
+Default is \code{"counts"}.}
 
-\item{assay_y}{Assay to convert in the anndata object.}
+\item{assay_y}{Assays to convert as layers in the anndata object.
+Default is \code{c("spliced", "unspliced")}.}
 
-\item{layer_y}{Layer names for the \code{assay_y} in the Seurat object.}
+\item{layer_y}{Layer names for the assay_y in the Seurat object.
+Default is \code{"counts"}.}
 
-\item{group_by}{Variable to use for grouping cells in the Seurat object.}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by.}
 
-\item{linear_reduction}{Linear reduction method to use, e.g., \code{"PCA"}.}
+\item{linear_reduction}{The linear dimensionality reduction method to use.
+Options are \code{"pca"}, \code{"svd"}, \code{"ica"}, \code{"nmf"}, \code{"mds"}, or \code{"glmpca"}.
+Default is \code{"pca"}.}
 
-\item{nonlinear_reduction}{Non-linear reduction method to use, e.g., \code{"UMAP"}.}
+\item{nonlinear_reduction}{The nonlinear dimensionality reduction method to use.
+Options are \code{"umap"}, \code{"umap-naive"}, \code{"tsne"}, \code{"dm"},
+\code{"phate"}, \code{"pacmap"}, \code{"trimap"}, \code{"largevis"}, or \code{"fr"}.
+Default is \code{"umap"}.}
 
 \item{basis}{The basis to use for reduction, e.g., \code{"UMAP"}.}
 
@@ -97,20 +109,30 @@ Edges for weights below this threshold will not be drawn.}
 
 \item{min_group_size}{The minimum size of a group (as a fraction of the total number of cells) to consider it as a potential branching point.}
 
-\item{palette}{The palette to use for coloring cells.}
+\item{palette}{Color palette name.
+Available palettes can be found in \link[thisplot:show_palettes]{thisplot::show_palettes}.
+Default is \code{"Chinese"}.}
 
-\item{palcolor}{A vector of colors to use as the palette.}
+\item{palcolor}{Custom colors used to create a color palette.
+Default is \code{NULL}.}
+
+\item{legend.position}{Position of legend in plots.
+Can be \code{"on data"}, \code{"right margin"}, \code{"bottom right"}, etc. Default is \code{"on data"}.}
+
+\item{cores}{The number of cores to use for \code{cellrank}.}
 
 \item{show_plot}{Whether to show the plot.
 Default is \code{FALSE}.}
 
-\item{save}{Whether to save the plots.}
+\item{save_plot}{Whether to save plots to files. Default is \code{FALSE}.}
 
-\item{dpi}{The DPI (dots per inch) for saving the plot.}
+\item{plot_format}{Format for saved plots: \code{"png"} (default), \code{"pdf"}, or \code{"svg"}.}
 
-\item{dirpath}{The directory to save the plots.}
+\item{plot_dpi}{Resolution (DPI) for saved plots. Default is \code{300}.}
 
-\item{fileprefix}{The file prefix to use for the plots.}
+\item{plot_prefix}{Prefix for saved plot filenames. Default is "cellrank".}
+
+\item{dirpath}{The directory to save the plots. Default is \code{"./cellrank"}.}
 
 \item{return_seurat}{Whether to return a Seurat object instead of an anndata object.
 Default is \code{TRUE}.}
@@ -129,7 +151,7 @@ pancreas_sub <- standard_scop(pancreas_sub)
 pancreas_sub <- RunPAGA(
   pancreas_sub,
   assay_x = "RNA",
-  group_by = "SubCellType",
+  group.by = "SubCellType",
   linear_reduction = "PCA",
   nonlinear_reduction = "UMAP"
 )
@@ -150,7 +172,7 @@ CellDimPlot(
 
 pancreas_sub <- RunPAGA(
   pancreas_sub,
-  group_by = "SubCellType",
+  group.by = "SubCellType",
   linear_reduction = "PCA",
   nonlinear_reduction = "UMAP",
   embedded_with_PAGA = TRUE,
@@ -175,5 +197,5 @@ CellDimPlot(
 }
 }
 \seealso{
-\link{srt_to_adata}, \link{PAGAPlot}, \link{CellDimPlot}, \link{RunSCVELO}
+\link{PAGAPlot}, \link{CellDimPlot}, \link{RunSCVELO}
 }

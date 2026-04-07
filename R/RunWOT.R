@@ -2,10 +2,10 @@
 #'
 #' @md
 #' @inheritParams thisutils::log_message
-#' @inheritParams RunPAGA
+#' @inheritParams RunCellRank
 #' @param time_field A character string specifying the column name in `adata.obs` or `srt@meta.data` that contains the time information.
 #' @param growth_iters A number of growth iterations to perform during the OT Model computation.
-#' Default is 3.
+#' Default is `3`.
 #' @param tmap_out A character string specifying the path to store the computed transport maps.
 #' @param time_from The starting time point for trajectory and fate analysis.
 #' @param time_to The ending time point for trajectory and fate analysis.
@@ -15,7 +15,6 @@
 #' @param recalculate Whether to recalculate the transport maps even if they already exist at the specified `tmap_out` location.
 #' Default is `FALSE`.
 #'
-#' @seealso [srt_to_adata]
 #' @export
 #'
 #' @references
@@ -36,7 +35,7 @@
 #'
 #' pancreas_sub <- RunWOT(
 #'   pancreas_sub,
-#'   group_by = "SubCellType",
+#'   group.by = "SubCellType",
 #'   time_field = "Lineage1",
 #'   time_from = min(pancreas_sub$Lineage1, na.rm = TRUE),
 #'   time_to = max(pancreas_sub$Lineage1, na.rm = TRUE),
@@ -51,7 +50,7 @@
 #' )
 #' pancreas_sub <- RunWOT(
 #'   pancreas_sub,
-#'   group_by = "CellType",
+#'   group.by = "CellType",
 #'   time_field = "Custom_Time",
 #'   time_from = 1,
 #'   time_to = 10,
@@ -65,7 +64,7 @@ RunWOT <- function(
     assay_y = c("spliced", "unspliced"),
     layer_y = "counts",
     adata = NULL,
-    group_by = NULL,
+    group.by = NULL,
     time_field = "Time",
     growth_iters = 3L,
     tmap_out = "tmaps/tmap_out",
@@ -73,13 +72,14 @@ RunWOT <- function(
     time_to = NULL,
     get_coupling = FALSE,
     recalculate = FALSE,
-    palette = "Paired",
+    palette = "Chinese",
     palcolor = NULL,
     show_plot = FALSE,
-    save = FALSE,
-    dpi = 300,
+    save_plot = FALSE,
+    plot_format = c("pdf", "png", "svg"),
+    plot_dpi = 300,
+    plot_prefix = "wot",
     dirpath = "./",
-    fileprefix = "",
     return_seurat = !is.null(srt),
     verbose = TRUE) {
   PrepareEnv()
@@ -90,9 +90,9 @@ RunWOT <- function(
       message_type = "error"
     )
   }
-  if (is.null(group_by)) {
+  if (is.null(group.by)) {
     log_message(
-      "{.arg group_by} must be provided",
+      "{.arg group.by} must be provided",
       message_type = "error"
     )
   }
@@ -140,19 +140,26 @@ RunWOT <- function(
       }
     }
   )
-  args <- args[
-    !names(args) %in%
-      c(
-        "srt",
-        "assay_x",
-        "layer_x",
-        "assay_y",
-        "layer_y",
-        "return_seurat",
-        "palette",
-        "palcolor"
-      )
-  ]
+
+  args[["save"]] <- save_plot
+  args[["dpi"]] <- plot_dpi
+  args[["fileprefix"]] <- plot_prefix
+
+  params <- c(
+    "srt",
+    "assay_x",
+    "layer_x",
+    "assay_y",
+    "layer_y",
+    "return_seurat",
+    "palette",
+    "palcolor",
+    "save_plot",
+    "plot_dpi",
+    "plot_prefix",
+    "plot_format"
+  )
+  args <- args[!names(args) %in% params]
 
   if (!is.null(srt)) {
     args[["adata"]] <- srt_to_adata(
@@ -163,7 +170,11 @@ RunWOT <- function(
       layer_y = layer_y
     )
   }
-  groups <- py_to_r2(args[["adata"]]$obs)[[group_by]]
+  if ("group.by" %in% names(args)) {
+    args[["group_by"]] <- args[["group.by"]]
+    args[["group.by"]] <- NULL
+  }
+  groups <- py_to_r2(args[["adata"]]$obs)[[group.by]]
   args[["palette"]] <- palette_colors(
     levels(groups) %||% unique(groups),
     palette = palette,

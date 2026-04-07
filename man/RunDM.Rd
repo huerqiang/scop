@@ -4,7 +4,7 @@
 \alias{RunDM}
 \alias{RunDM.Seurat}
 \alias{RunDM.default}
-\title{Run DM (diffusion map)}
+\title{Run diffusion map (DM)}
 \usage{
 RunDM(object, ...)
 
@@ -19,6 +19,7 @@ RunDM(object, ...)
   sigma = "local",
   k = 30,
   dist.method = "euclidean",
+  npcs = NULL,
   reduction.name = "dm",
   reduction.key = "DM_",
   verbose = TRUE,
@@ -34,6 +35,7 @@ RunDM(object, ...)
   sigma = "local",
   k = 30,
   dist.method = "euclidean",
+  npcs = NULL,
   reduction.key = "DM_",
   verbose = TRUE,
   seed.use = 11,
@@ -43,22 +45,19 @@ RunDM(object, ...)
 \arguments{
 \item{object}{An object. This can be a Seurat object or a matrix-like object.}
 
-\item{...}{Additional arguments to be passed to \link[destiny:DiffusionMap-class]{destiny::DiffusionMap}.}
+\item{...}{Additional arguments to be passed to \code{destiny::DiffusionMap}.}
 
-\item{reduction}{The reduction to be used.
-Default is \code{"pca"}.}
+\item{reduction}{Which dimensionality reduction to use. Default is \code{"pca"}.}
 
-\item{dims}{The dimensions to be used.
-Default is \code{1:30}.}
+\item{dims}{The dimensions to be used. Default is \code{NULL}.}
 
-\item{features}{The features to be used.
-Default is \code{NULL}.}
+\item{features}{A character vector of features to use. Default is \code{NULL}.}
 
-\item{assay}{The assay to be used.
-Default is \code{NULL}.}
+\item{assay}{Which assay to use.
+If \code{NULL}, the default assay of the Seurat object will be used.}
 
-\item{layer}{The layer to be used.
-Default is \code{"data"}.}
+\item{layer}{Which layer to use.
+Default is \code{data}.}
 
 \item{ndcs}{A number of diffusion components (dimensions) to be computed.
 Default is \code{2}.}
@@ -73,6 +72,10 @@ Default is \code{30}.}
 Currently supported values are \code{"euclidean"} and \code{"cosine"}.
 Default is \code{"euclidean"}.}
 
+\item{npcs}{Number of principal components to use for dimensionality reduction before computing diffusion map.
+This can speed up computation when using many features.
+Default is \code{NULL} (auto-determined based on the number of features).}
+
 \item{reduction.name}{The name of the reduction to be stored in the Seurat object.
 Default is \code{"dm"}.}
 
@@ -82,23 +85,9 @@ Default is \code{"DM_"}.}
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
 
-\item{seed.use}{An integer specifying the random seed to be used.
+\item{seed.use}{Random seed for reproducibility.
 Default is \code{11}.}
 }
 \description{
-Run DM (diffusion map)
-}
-\examples{
-data(pancreas_sub)
-pancreas_sub <- standard_scop(pancreas_sub)
-pancreas_sub <- RunDM(
-  object = pancreas_sub,
-  features = SeuratObject::VariableFeatures(pancreas_sub)
-)
-
-CellDimPlot(
-  pancreas_sub,
-  group.by = "CellType",
-  reduction = "dm"
-)
+Run diffusion map (DM)
 }

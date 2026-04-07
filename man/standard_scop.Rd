@@ -40,7 +40,7 @@ standard_scop(
 \item{prefix}{A prefix to add to the names of intermediate objects created by the function.
 Default is \code{"Standard"}.}
 
-\item{assay}{The name of the assay to use for the analysis.
+\item{assay}{Which assay to use.
 If \code{NULL}, the default assay of the Seurat object will be used.}
 
 \item{do_normalization}{Whether to perform normalization.
@@ -58,7 +58,8 @@ Options are \code{"vst"}, \code{"mvp"}, or \code{"disp"}.
 Default is \code{"vst"}.}
 
 \item{nHVF}{The number of highly variable features to select.
-If NULL, all highly variable features will be used.}
+If NULL, all highly variable features will be used.
+Default is \code{2000}.}
 
 \item{HVF}{A vector of feature names to use as highly variable features.
 If NULL, the function will use the highly variable features identified by the HVF method.}
@@ -81,7 +82,8 @@ Default is \code{"pca"}.}
 Default is \code{50}.}
 
 \item{linear_reduction_dims_use}{The dimensions to use for downstream analysis.
-If \code{NULL}, all dimensions will be used.}
+If \code{NULL}, estimated dimensions stored in the linear reduction will be used when available;
+otherwise, the first up to \code{50} dimensions will be used as a fallback.}
 
 \item{linear_reduction_params}{A list of parameters to pass to the linear dimensionality reduction method.}
 
@@ -119,7 +121,7 @@ Default is \code{0.6}.}
 \item{verbose}{Whether to print the message.
 Default is \code{TRUE}.}
 
-\item{seed}{The random seed to use for reproducibility.
+\item{seed}{Random seed for reproducibility.
 Default is \code{11}.}
 }
 \value{
@@ -129,7 +131,6 @@ A \code{Seurat} object.
 This function performs a standard single-cell analysis workflow.
 }
 \examples{
-\dontrun{
 library(Matrix)
 data(pancreas_sub)
 pancreas_sub <- standard_scop(pancreas_sub)
@@ -139,9 +140,9 @@ CellDimPlot(
 )
 
 # Use a combination of different linear
-# or non-linear dimension reduction methods
+# or nonlinear dimension reduction methods
 linear_reductions <- c(
-  "pca", "nmf", "mds", "glmpca"
+  "pca", "nmf", "mds"
 )
 pancreas_sub <- standard_scop(
   pancreas_sub,
@@ -156,17 +157,17 @@ plist1 <- lapply(
       reduction = paste0(
         "Standard", lr, "UMAP2D"
       ),
-      xlab = "", ylab = "", title = lr,
+      xlab = "", ylab = "",
+      title = paste0(lr, "_umap"),
       legend.position = "none",
       theme_use = "theme_blank"
     )
   }
 )
-patchwork::wrap_plots(plotlist = plist1)
+patchwork::wrap_plots(plist1)
 
 nonlinear_reductions <- c(
-  "umap", "tsne", "dm", "phate",
-  "pacmap", "trimap", "largevis", "fr"
+  "umap", "tsne", "fr"
 )
 pancreas_sub <- standard_scop(
   pancreas_sub,
@@ -179,17 +180,14 @@ plist2 <- lapply(
       pancreas_sub,
       group.by = "SubCellType",
       reduction = paste0(
-        "Standardpca", toupper(nr), "2D"
+        "Standardpca", nr, "2D"
       ),
-      xlab = "", ylab = "", title = nr,
+      xlab = "", ylab = "",
+      title = paste0("pca_", nr),
       legend.position = "none",
       theme_use = "theme_blank"
     )
   }
 )
-patchwork::wrap_plots(plotlist = plist2)
-}
-}
-\seealso{
-\link{integration_scop}
+patchwork::wrap_plots(plist2)
 }
